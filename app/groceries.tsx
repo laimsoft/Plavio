@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
-import { colors } from '@/constants/colors';
-import GroceryItemCard, { GroceryItemType } from '@/components/groceries/GroceryItemCard';
-import GroceryHeader from '@/components/groceries/GroceryHeader';
-import GrocerySearchBar from '@/components/groceries/GrocerySearchBar';
 import GroceryCategoryChips from '@/components/groceries/GroceryCategoryChips';
 import GroceryFab from '@/components/groceries/GroceryFab';
+import GroceryHeader from '@/components/groceries/GroceryHeader';
+import GroceryItemCard, { GroceryItemType } from '@/components/groceries/GroceryItemCard';
+import GrocerySearchBar from '@/components/groceries/GrocerySearchBar';
+import { colors } from '@/constants/colors';
+import React, { useMemo, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
 
 const CATEGORIES = ['All', 'Produce', 'Dairy', 'Bakery', 'Frozen', 'Cleaning', 'Snacks'];
 
@@ -77,7 +77,7 @@ export default function GroceriesScreen() {
 
       <View style={styles.searchSection}>
         <GrocerySearchBar search={search} onSearchChange={setSearch} />
-        <GroceryCategoryChips 
+        <GroceryCategoryChips
           categories={CATEGORIES}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
