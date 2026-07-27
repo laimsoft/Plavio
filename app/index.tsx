@@ -1,7 +1,5 @@
-import BottomNav from '@/components/common/BottomNav';
 import FAB from '@/components/dashboard/FAB';
 import FocusSection from '@/components/dashboard/FocusSection';
-import Header from '@/components/dashboard/Header';
 import SearchBar from '@/components/dashboard/SearchBar';
 import SummaryGrid from '@/components/dashboard/SummaryGrid';
 import { colors } from '@/constants/colors';
@@ -13,8 +11,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.screen}>
-      <Header insetsTop={insets.top} />
-
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -28,8 +24,7 @@ export default function HomeScreen() {
         <View style={{ height: 96 }} />
       </ScrollView>
 
-      <FAB insetsBottom={insets.bottom} />
-      <BottomNav insetsBottom={insets.bottom} />
+      <FAB insetsBottom={0} />
     </View>
   );
 }

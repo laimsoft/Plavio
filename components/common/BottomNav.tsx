@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter, usePathname } from 'expo-router';
 import { colors } from '../../constants/colors';
 
 type NavItem = {
@@ -9,11 +10,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { key: 'home', icon: 'home', label: 'Home' },
-  { key: 'tasks', icon: 'checklist', label: 'Tasks' },
-  { key: 'expenses', icon: 'payments', label: 'Expenses' },
-  { key: 'settings', icon: 'settings', label: 'Settings' },
-  { key: 'more', icon: 'more-horiz', label: 'More' },
+  { key: '/', icon: 'home', label: 'Home' },
+  { key: '/tasks', icon: 'checklist', label: 'Tasks' },
+  { key: '/accounts', icon: 'account-balance-wallet', label: 'Accounts' },
+  { key: '/groceries', icon: 'shopping-cart', label: 'Groceries' },
+  { key: '/bills', icon: 'receipt', label: 'Bills' },
 ];
 
 type BottomNavProps = {
@@ -21,15 +22,19 @@ type BottomNavProps = {
 };
 
 export default function BottomNav({ insetsBottom }: BottomNavProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   return (
     <View style={[styles.bottomNav, { paddingBottom: Math.max(insetsBottom, 12) }]}>
       {navItems.map((item) => {
-        const active = item.key === 'home';
+        const active = pathname === item.key;
         return (
           <TouchableOpacity
             key={item.key}
             style={[styles.navItem, active && styles.navItemActive]}
             activeOpacity={0.7}
+            onPress={() => router.push(item.key as any)}
           >
             <MaterialIcons
               name={item.icon}
@@ -57,7 +62,7 @@ export default function BottomNav({ insetsBottom }: BottomNavProps) {
 const styles = StyleSheet.create({
   bottomNav: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: colors.surfaceContainer,
     borderTopLeftRadius: 12,
@@ -66,9 +71,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   navItem: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 4,
     paddingVertical: 6,
     borderRadius: 999,
   },
@@ -76,9 +82,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondaryContainer,
   },
   navLabel: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 0,
     marginTop: 4,
   },
 });

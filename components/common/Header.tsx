@@ -11,13 +11,10 @@ export default function Header({ insetsTop }: HeaderProps) {
     <View style={[styles.header, { paddingTop: insetsTop }]}>
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.7}>
-            <MaterialIcons name="calendar-today" size={24} color={colors.primary} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Good morning, Sohaib</Text>
+          <Text style={styles.headerTitle}>Plavio</Text>
         </View>
         <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.7}>
-          <MaterialIcons name="notifications" size={24} color={colors.primary} />
+          <MaterialIcons name="menu" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
     </View>
