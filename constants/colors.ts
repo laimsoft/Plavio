@@ -20,4 +20,6 @@ export const colors = {
   onSurfaceVariant: '#444655',
   error: '#ba1a1a',
   outline: '#747687',
+  outlineVariant: '#c4c6d0',
+  secondary: '#5c5e71',
 };
