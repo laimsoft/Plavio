@@ -1,22 +1,31 @@
+import React, { useState } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../constants/colors';
+import SidebarMenu from './SidebarMenu';
 
 type HeaderProps = {
   insetsTop: number;
 };
 
 export default function Header({ insetsTop }: HeaderProps) {
+  const [menuVisible, setMenuVisible] = useState(false);
+
   return (
     <View style={[styles.header, { paddingTop: insetsTop }]}>
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>Plavio</Text>
         </View>
-        <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.7}>
+        <TouchableOpacity 
+          style={styles.headerIconButton} 
+          activeOpacity={0.7}
+          onPress={() => setMenuVisible(true)}
+        >
           <MaterialIcons name="menu" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
+      <SidebarMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
     </View>
   );
 }

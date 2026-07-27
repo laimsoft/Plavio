@@ -9,7 +9,7 @@ type FABProps = {
 export default function FAB({ insetsBottom }: FABProps) {
   return (
     <TouchableOpacity
-      style={[styles.fab, { bottom: 96 + insetsBottom }]}
+      style={[styles.fab, { bottom: 24 + insetsBottom }]}
       activeOpacity={0.85}
     >
       <MaterialIcons name="add" size={26} color={colors.onPrimary} />
@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 24,
     width: 56,
+
     height: 56,
     borderRadius: 16,
     backgroundColor: colors.primary,
