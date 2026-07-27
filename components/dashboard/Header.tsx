@@ -14,7 +14,7 @@ export default function Header({ insetsTop }: HeaderProps) {
           <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.7}>
             <MaterialIcons name="calendar-today" size={24} color={colors.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Good morning, User</Text>
+          <Text style={styles.headerTitle}>Good morning, Sohaib</Text>
         </View>
         <TouchableOpacity style={styles.headerIconButton} activeOpacity={0.7}>
           <MaterialIcons name="notifications" size={24} color={colors.primary} />
