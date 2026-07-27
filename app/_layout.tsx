@@ -3,7 +3,7 @@ import Header from '@/components/common/Header';
 import { colors } from '@/constants/colors';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function RootLayout() {
