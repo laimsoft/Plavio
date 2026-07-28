@@ -7,9 +7,11 @@ import { Task } from './types';
 type TaskCardProps = {
     task: Task;
     onToggle: (id: string) => void;
+    onEdit?: (task: Task) => void;
+    onDelete?: (id: string) => void;
 };
 
-export default function TaskCard({ task, onToggle }: TaskCardProps) {
+export default function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardProps) {
     return (
         <View style={[styles.taskCard, task.completed && styles.taskCardCompleted]}>
             <TouchableOpacity
@@ -69,15 +71,27 @@ export default function TaskCard({ task, onToggle }: TaskCardProps) {
                 )}
             </View>
 
-            {task.trailingIcon && (
-                <View style={styles.trailingIconCircle}>
-                    <MaterialIcons
-                        name={task.trailingIcon}
-                        size={18}
-                        color={colors.onSurfaceVariant}
-                    />
-                </View>
-            )}
+            <View style={styles.actionsContainer}>
+                {onEdit && (
+                    <TouchableOpacity onPress={() => onEdit(task)} style={styles.actionBtn}>
+                        <MaterialIcons name="edit" size={20} color={colors.onSurfaceVariant} />
+                    </TouchableOpacity>
+                )}
+                {onDelete && (
+                    <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.actionBtn}>
+                        <MaterialIcons name="delete-outline" size={20} color={colors.error} />
+                    </TouchableOpacity>
+                )}
+                {task.trailingIcon && !onEdit && !onDelete && (
+                    <View style={styles.trailingIconCircle}>
+                        <MaterialIcons
+                            name={task.trailingIcon}
+                            size={18}
+                            color={colors.onSurfaceVariant}
+                        />
+                    </View>
+                )}
+            </View>
         </View>
     );
 }
@@ -175,5 +189,13 @@ const styles = StyleSheet.create({
         backgroundColor: extra.surfaceContainer,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    actionsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    actionBtn: {
+        padding: 8,
     },
 });

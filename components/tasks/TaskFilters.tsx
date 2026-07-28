@@ -3,28 +3,17 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { extra } from './constants';
 
+import { CategoryRow } from '@/database/queries';
+
 type TaskFiltersProps = {
-    categories: string[];
-    activeCategory: string;
-    onCategorySelect: (category: string) => void;
+    categories: CategoryRow[];
+    activeCategoryId: number | null;
+    onCategorySelect: (categoryId: number) => void;
 };
 
-export default function TaskFilters({ categories, activeCategory, onCategorySelect }: TaskFiltersProps) {
+export default function TaskFilters({ categories, activeCategoryId, onCategorySelect }: TaskFiltersProps) {
     return (
-        <View style={styles.searchSection}>
-            <View style={styles.searchWrapper}>
-                <MaterialIcons
-                    name="search"
-                    size={20}
-                    color={colors.onSurfaceVariant}
-                    style={styles.searchIcon}
-                />
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search tasks..."
-                    placeholderTextColor={colors.onSurfaceVariant}
-                />
-            </View>
+        <View style={styles.filterSection}>
 
             <ScrollView
                 horizontal
@@ -32,18 +21,18 @@ export default function TaskFilters({ categories, activeCategory, onCategorySele
                 contentContainerStyle={styles.categoryRow}
             >
                 {categories.map((category) => {
-                    const active = category === activeCategory;
+                    const active = category.id === activeCategoryId;
                     return (
                         <TouchableOpacity
-                            key={category}
+                            key={category.id}
                             style={[styles.categoryChip, active && styles.categoryChipActive]}
                             activeOpacity={0.7}
-                            onPress={() => onCategorySelect(category)}
+                            onPress={() => onCategorySelect(category.id)}
                         >
                             <Text
                                 style={[styles.categoryLabel, active && styles.categoryLabelActive]}
                             >
-                                {category}
+                                {category.name}
                             </Text>
                         </TouchableOpacity>
                     );
@@ -54,36 +43,15 @@ export default function TaskFilters({ categories, activeCategory, onCategorySele
 }
 
 const styles = StyleSheet.create({
-    searchSection: {
+    filterSection: {
         paddingHorizontal: 16,
         paddingTop: 8,
         paddingBottom: 16,
         backgroundColor: colors.background,
     },
-    searchWrapper: {
-        position: 'relative',
-        justifyContent: 'center',
-    },
-    searchIcon: {
-        position: 'absolute',
-        left: 16,
-        zIndex: 1,
-    },
-    searchInput: {
-        backgroundColor: extra.surfaceContainerLow,
-        borderWidth: 1,
-        borderColor: extra.outlineVariant,
-        borderRadius: 999,
-        paddingVertical: 12,
-        paddingLeft: 48,
-        paddingRight: 16,
-        fontSize: 14,
-        color: extra.onSurface,
-    },
     categoryRow: {
         flexDirection: 'row',
         gap: 8,
-        marginTop: 16,
         paddingBottom: 4,
     },
     categoryChip: {

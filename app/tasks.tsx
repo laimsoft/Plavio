@@ -1,60 +1,141 @@
 import TaskCard from '@/components/tasks/TaskCard';
 import TaskFAB from '@/components/tasks/TaskFAB';
 import TaskFilters from '@/components/tasks/TaskFilters';
-import { extra } from '@/components/tasks/constants';
+import SearchBar from '@/components/tasks/SearchBar';
+import CreateTaskModal from '@/components/tasks/CreateTaskModal';
 import { Task } from '@/components/tasks/types';
 import { colors } from '@/constants/colors';
-import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useState, useEffect } from 'react';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { initDatabase } from '@/database/schema';
+import { 
+    CategoryRow, 
+    TaskRow, 
+    getCategories, 
+    getTasks, 
+    createTask, 
+    createCategory, 
+    toggleTaskCompletion,
+    updateTask,
+    deleteTask
+} from '@/database/queries';
 
-const initialTasks: Task[] = [
-    {
-        id: '1',
-        title: 'Review Project Proposal',
-        dueLabel: 'Today, 5:00 PM',
-        dueIcon: 'schedule',
-        dueColor: extra.error,
-        priority: 'High',
-        completed: false,
-    },
-    {
-        id: '2',
-        title: 'Buy Groceries',
-        dueLabel: 'Tomorrow, Morning',
-        dueIcon: 'calendar-today',
-        priority: 'Medium',
-        trailingIcon: 'shopping-cart',
-        completed: false,
-    },
-    {
-        id: '3',
-        title: 'Schedule Oil Change',
-        dueLabel: '',
-        dueIcon: 'schedule',
-        priority: null,
-        completed: true,
-        completedLabel: 'Completed Yesterday',
-    },
-];
-
-const categories = ['All', 'Personal', 'Work', 'Shopping', 'Car', 'Home'];
+const mapTaskRowToTask = (row: TaskRow): Task => ({
+    id: String(row.id),
+    title: row.title,
+    categoryId: row.category_id,
+    dueLabel: row.dueLabel || '',
+    dueIcon: (row.dueIcon as any) || 'schedule',
+    dueColor: row.dueColor || undefined,
+    priority: row.priority as any,
+    trailingIcon: row.trailingIcon as any,
+    completed: row.completed === 1,
+    completedLabel: row.completedLabel || undefined,
+});
 
 export default function TasksScreen() {
-    const [tasks, setTasks] = useState<Task[]>(initialTasks);
-    const [activeCategory, setActiveCategory] = useState('All');
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [categories, setCategories] = useState<CategoryRow[]>([]);
+    const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+    const [isReady, setIsReady] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const toggleTask = (id: string) => {
-        setTasks((prev) =>
-            prev.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task))
-        );
+    useEffect(() => {
+        const setup = async () => {
+            await initDatabase();
+            await loadData();
+            setIsReady(true);
+        };
+        setup();
+    }, []);
+
+    useEffect(() => {
+        if (isReady) {
+            loadTasks(activeCategoryId);
+        }
+    }, [activeCategoryId]);
+
+    const loadData = async () => {
+        const cats = await getCategories();
+        setCategories(cats);
+        if (cats.length > 0 && activeCategoryId === null) {
+            // Default to 'All' which is usually the first inserted
+            const allCat = cats.find(c => c.name === 'All') || cats[0];
+            setActiveCategoryId(allCat.id);
+        } else {
+            await loadTasks(activeCategoryId);
+        }
     };
+
+    const loadTasks = async (categoryId: number | null) => {
+        if (!categoryId) return;
+        // If it's the 'All' category, fetch all tasks
+        const selectedCat = categories.find(c => c.id === categoryId);
+        const fetchCategoryId = selectedCat?.name === 'All' ? undefined : categoryId;
+        
+        const taskRows = await getTasks(fetchCategoryId);
+        setTasks(taskRows.map(mapTaskRowToTask));
+    };
+
+    const handleToggleTask = async (id: string) => {
+        const numericId = parseInt(id, 10);
+        const task = tasks.find((t) => t.id === id);
+        if (task) {
+            // Optimistic update
+            setTasks((prev) =>
+                prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+            );
+            await toggleTaskCompletion(numericId, task.completed);
+        }
+    };
+
+    const handleSaveTask = async (title: string, categoryId: number | null, priority: string | null, taskId?: string) => {
+        if (taskId) {
+            await updateTask(parseInt(taskId, 10), title, categoryId, priority);
+        } else {
+            await createTask(title, categoryId, priority);
+        }
+        setModalVisible(false);
+        setTaskToEdit(null);
+        await loadTasks(activeCategoryId);
+    };
+
+    const handleEditTask = (task: Task) => {
+        setTaskToEdit(task);
+        setModalVisible(true);
+    };
+
+    const handleDeleteTask = async (id: string) => {
+        await deleteTask(parseInt(id, 10));
+        await loadTasks(activeCategoryId);
+    };
+
+    const handleCreateCategory = async (name: string) => {
+        const newCat = await createCategory(name);
+        setCategories((prev) => [...prev, newCat]);
+    };
+
+    if (!isReady) {
+        return (
+            <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Text style={{ color: colors.onSurfaceVariant }}>Loading...</Text>
+            </View>
+        );
+    }
+
+    const filteredTasks = tasks.filter(task => 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <View style={styles.screen}>
+            <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
             <TaskFilters
                 categories={categories}
-                activeCategory={activeCategory}
-                onCategorySelect={setActiveCategory}
+                activeCategoryId={activeCategoryId}
+                onCategorySelect={setActiveCategoryId}
             />
 
             <ScrollView
@@ -62,15 +143,35 @@ export default function TasksScreen() {
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             >
-                {tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} onToggle={toggleTask} />
-                ))}
+                {filteredTasks.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyStateText}>No tasks yet.</Text>
+                    </View>
+                ) : (
+                    filteredTasks.map((task) => (
+                        <TaskCard 
+                            key={task.id} 
+                            task={task} 
+                            onToggle={handleToggleTask}
+                            onEdit={handleEditTask}
+                            onDelete={handleDeleteTask}
+                        />
+                    ))
+                )}
 
-                {/* Spacer so the last card clears the FAB */}
                 <View style={{ height: 80 }} />
             </ScrollView>
 
-            <TaskFAB />
+            <TaskFAB onPress={() => { setTaskToEdit(null); setModalVisible(true); }} />
+
+            <CreateTaskModal
+                visible={modalVisible}
+                categories={categories.filter(c => c.name !== 'All')}
+                initialTask={taskToEdit}
+                onClose={() => { setModalVisible(false); setTaskToEdit(null); }}
+                onSave={handleSaveTask}
+                onCreateCategory={handleCreateCategory}
+            />
         </View>
     );
 }
@@ -87,5 +188,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingTop: 16,
         gap: 16,
+    },
+    emptyState: {
+        paddingVertical: 32,
+        alignItems: 'center',
+    },
+    emptyStateText: {
+        fontSize: 16,
+        color: colors.onSurfaceVariant,
     },
 });

@@ -5,6 +5,7 @@ export type Priority = 'High' | 'Medium' | null;
 export type Task = {
     id: string;
     title: string;
+    categoryId?: number | null;
     dueLabel: string;
     dueIcon: keyof typeof MaterialIcons.glyphMap;
     dueColor?: string;

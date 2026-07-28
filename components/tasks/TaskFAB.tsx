@@ -3,9 +3,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { extra } from './constants';
 
-export default function TaskFAB() {
+type TaskFABProps = {
+    onPress: () => void;
+};
+
+export default function TaskFAB({ onPress }: TaskFABProps) {
     return (
-        <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={onPress}>
             <MaterialIcons name="add" size={26} color={extra.onPrimary} />
         </TouchableOpacity>
     );
