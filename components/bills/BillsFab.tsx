@@ -3,9 +3,13 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 
-export default function BillsFab() {
+interface BillsFabProps {
+  onPress?: () => void;
+}
+
+export default function BillsFab({ onPress }: BillsFabProps) {
   return (
-    <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+    <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={onPress}>
       <MaterialIcons name="add" size={24} color={colors.onPrimaryContainer} />
     </TouchableOpacity>
   );
