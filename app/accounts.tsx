@@ -1,5 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import React, { useState, useCallback } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -8,15 +9,11 @@ import {
 } from 'react-native';
 import { RecentTransactions, Transaction } from '../components/accounts/RecentTransactions';
 import { SummarySection } from '../components/accounts/SummarySection';
+import { EditAccountModal } from '../components/accounts/EditAccountModal';
 import { colors } from '../constants/colors';
+import { getAccount, updateAccount, AccountRow } from '../database/queries';
 
-// ---- Mock data (swap for real data later) ----
-const SUMMARY = {
-  totalBudget: 3500.0,
-  remaining: 1250.0,
-  expenses: 2250.0,
-  savings: 500.0,
-};
+const MOCK_EXPENSES = 2250.0; // Keeping expenses hardcoded for now
 
 const TRANSACTIONS: Transaction[] = [
   {
@@ -54,6 +51,44 @@ const formatCurrency = (value: number) =>
 export default function AccountsScreen() {
   const router = useRouter();
 
+  const [account, setAccount] = useState<AccountRow | null>(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+
+  const fetchAccount = async () => {
+    try {
+      const data = await getAccount();
+      setAccount(data);
+    } catch (error) {
+      console.error('Failed to fetch account:', error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAccount();
+    }, [])
+  );
+
+  const handleSaveAccount = async (budget: number, savings: number) => {
+    try {
+      await updateAccount(budget, savings);
+      await fetchAccount(); // Refresh data
+    } catch (error) {
+      console.error('Failed to update account:', error);
+    }
+  };
+
+  const totalBudget = account?.total_budget || 0;
+  const savings = account?.total_savings || 0;
+  const remaining = Math.max(0, totalBudget - savings - MOCK_EXPENSES);
+
+  const summaryData = {
+    totalBudget,
+    remaining,
+    expenses: MOCK_EXPENSES,
+    savings,
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -62,9 +97,11 @@ export default function AccountsScreen() {
       >
         {/* Summary Section (Bento Grid) */}
         <SummarySection 
-          data={SUMMARY} 
+          data={summaryData} 
           formatCurrency={formatCurrency} 
           onExpensePress={() => router.push('/expenses')}
+          onBudgetPress={() => setIsEditModalVisible(true)}
+          onSavingsPress={() => setIsEditModalVisible(true)}
         />
 
         {/* Recent Transactions */}
@@ -75,9 +112,17 @@ export default function AccountsScreen() {
       </ScrollView>
 
       {/* Contextual FAB */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => setIsEditModalVisible(true)}>
         <MaterialIcons name="add" size={28} color={colors.onPrimary} />
       </TouchableOpacity>
+
+      <EditAccountModal
+        visible={isEditModalVisible}
+        onClose={() => setIsEditModalVisible(false)}
+        onSave={handleSaveAccount}
+        initialBudget={totalBudget}
+        initialSavings={savings}
+      />
     </View>
   );
 }
