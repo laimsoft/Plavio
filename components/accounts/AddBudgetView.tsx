@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
+import { useSettings } from '../../contexts/SettingsContext';
 
 type AddBudgetViewProps = {
   initialBudget: number;
@@ -11,6 +12,7 @@ type AddBudgetViewProps = {
 
 export function AddBudgetView({ initialBudget, onSave, onBack }: AddBudgetViewProps) {
   const [amount, setAmount] = useState('');
+  const { formatCurrency } = useSettings();
 
   const handleSave = () => {
     const parsedAmount = parseFloat(amount) || 0;
@@ -28,7 +30,7 @@ export function AddBudgetView({ initialBudget, onSave, onBack }: AddBudgetViewPr
       </View>
 
       <Text style={styles.currentAmountText}>
-        Current Budget: {initialBudget.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
+        Current Budget: {formatCurrency(initialBudget)}
       </Text>
 
       <View style={styles.inputGroup}>

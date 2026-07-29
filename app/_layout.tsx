@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { initDatabase } from '@/database/schema';
+import { SettingsProvider } from '@/contexts/SettingsContext';
 
 export default function RootLayout() {
   const insets = useSafeAreaInsets();
@@ -38,9 +39,7 @@ export default function RootLayout() {
       <View style={[styles.content, { paddingTop: insets.top + 80 }]}>
         <Stack screenOptions={{ headerShown: false }} />
       </View>
-      <BottomNav insetsBottom={insets.bottom} />
-      <StatusBar style="auto" />
-    </View>
+    </SettingsProvider>
   );
 }
 

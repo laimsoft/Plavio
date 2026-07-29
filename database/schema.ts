@@ -69,6 +69,29 @@ export const initDatabase = async () => {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        currency TEXT NOT NULL DEFAULT 'PKR',
+        theme TEXT NOT NULL DEFAULT 'System'
+            CHECK(theme IN ('Light', 'Dark', 'System')),
+        date_format TEXT NOT NULL DEFAULT 'DD/MM/YYYY'
+            CHECK(date_format IN (
+                'DD/MM/YYYY',
+                'MM/DD/YYYY',
+                'YYYY-MM-DD'
+            )),
+        time_format TEXT NOT NULL DEFAULT '24 Hour'
+            CHECK(time_format IN (
+                '12 Hour',
+                '24 Hour'
+            )),
+        language TEXT NOT NULL DEFAULT 'English',
+        notification_enabled INTEGER NOT NULL DEFAULT 1
+            CHECK(notification_enabled IN (0,1)),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   await db.execAsync(`
@@ -115,6 +138,12 @@ export const initDatabase = async () => {
   const listCountResult = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM grocery_lists');
   if (listCountResult && listCountResult.count === 0) {
     await db.runAsync("INSERT INTO grocery_lists (name) VALUES ('Default List')");
+  }
+
+  // Insert default settings
+  const settingsCountResult = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM settings');
+  if (settingsCountResult && settingsCountResult.count === 0) {
+    await db.runAsync("INSERT INTO settings (currency) VALUES ('PKR')");
   }
 
   // Verify tables exist

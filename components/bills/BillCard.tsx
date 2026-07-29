@@ -3,18 +3,14 @@ import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 import { Bill, STATUS_COLOR, STRIP_COLOR } from './types';
+import { useSettings } from '@/contexts/SettingsContext';
 
 type Props = {
   bill: Bill;
 };
 
-const formatCurrency = (value: number) =>
-  `£${value.toLocaleString('en-GB', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-
 export default function BillCard({ bill }: Props) {
+  const { formatCurrency } = useSettings();
   const isPaid = bill.status === 'paid';
   const isOverdue = bill.status === 'overdue';
 

@@ -1,8 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { CircularProgress } from './CircularProgress';
 import { colors } from '../../constants/colors';
+import { useSettings } from '../../contexts/SettingsContext';
 
 export function BudgetUsage({ usagePercent, expenses, remaining }: { usagePercent: number, expenses: number, remaining: number }) {
+  const { formatCurrency } = useSettings();
+
   return (
     <View style={styles.card}>
       <Text style={styles.cardTitle}>Budget Usage</Text>
@@ -17,13 +20,13 @@ export function BudgetUsage({ usagePercent, expenses, remaining }: { usagePercen
         <View>
           <Text style={styles.usageFooterLabel}>Budget Used</Text>
           <Text style={styles.usageFooterValue}>
-            £{expenses.toLocaleString('en-GB')}
+            {formatCurrency(expenses)}
           </Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text style={styles.usageFooterLabel}>Remaining</Text>
           <Text style={[styles.usageFooterValue, { color: colors.primary }]}>
-            £{remaining.toLocaleString('en-GB')}
+            {formatCurrency(remaining)}
           </Text>
         </View>
       </View>
