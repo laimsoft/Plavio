@@ -5,16 +5,21 @@ import { getDatabase } from './db';
  * We will populate this with CREATE TABLE statements later.
  */
 export const initDatabase = async () => {
+  console.log('Opening database...');
   const db = await getDatabase();
   
-  await db.execAsync(`
-    PRAGMA journal_mode = WAL;
+  await db.execAsync(`PRAGMA journal_mode = WAL;`);
+  await db.execAsync(`PRAGMA foreign_keys = ON;`);
 
+  console.log('Creating tables...');
+  await db.execAsync(`
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL
     );
+  `);
 
+  await db.execAsync(`
     CREATE TABLE IF NOT EXISTS tasks (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -30,6 +35,35 @@ export const initDatabase = async () => {
     );
   `);
 
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS grocery_lists (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL
+    );
+  `);
+
+  console.log('Creating grocery_items...');
+  try {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS grocery_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        list_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        quantity REAL NOT NULL DEFAULT 1,
+        unit TEXT,
+        category_id INTEGER,
+        purchased INTEGER NOT NULL DEFAULT 0 CHECK(purchased IN (0,1)),
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (list_id) REFERENCES grocery_lists(id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL ON UPDATE CASCADE
+      );
+    `);
+  } catch (err) {
+    console.error('Error creating grocery_items:', err);
+    throw err;
+  }
+
   // Insert default categories if none exist
   const countResult = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM categories');
   if (countResult && countResult.count === 0) {
@@ -41,5 +75,22 @@ export const initDatabase = async () => {
     `);
   }
 
-  console.log('Database initialized');
+  // Insert default grocery list
+  const listCountResult = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM grocery_lists');
+  if (listCountResult && listCountResult.count === 0) {
+    await db.runAsync("INSERT INTO grocery_lists (name) VALUES ('Default List')");
+  }
+
+  // Verify tables exist
+  const tables = await db.getAllAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table'");
+  console.log('Found tables in database:', tables.map((t) => t.name).join(', '));
+
+  const groceryItemsExists = tables.some((t) => t.name === 'grocery_items');
+  if (!groceryItemsExists) {
+    const errorMsg = 'CRITICAL ERROR: grocery_items table does not exist after initialization.';
+    console.error(errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  console.log('Database initialized successfully.');
 };

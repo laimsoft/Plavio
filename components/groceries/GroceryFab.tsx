@@ -3,9 +3,13 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { colors } from '@/constants/colors';
 
-export default function GroceryFab() {
+type Props = {
+  onPress: () => void;
+};
+
+export default function GroceryFab({ onPress }: Props) {
   return (
-    <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+    <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={onPress}>
       <MaterialIcons name="add" size={26} color={colors.onPrimaryContainer} />
     </TouchableOpacity>
   );
