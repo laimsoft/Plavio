@@ -1,24 +1,24 @@
+import CreateTaskModal from '@/components/tasks/CreateTaskModal';
+import SearchBar from '@/components/tasks/SearchBar';
 import TaskCard from '@/components/tasks/TaskCard';
 import TaskFAB from '@/components/tasks/TaskFAB';
 import TaskFilters from '@/components/tasks/TaskFilters';
-import SearchBar from '@/components/tasks/SearchBar';
-import CreateTaskModal from '@/components/tasks/CreateTaskModal';
 import { Task } from '@/components/tasks/types';
 import { colors } from '@/constants/colors';
-import { useState, useEffect } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { initDatabase } from '@/database/schema';
-import { 
-    CategoryRow, 
-    TaskRow, 
-    getCategories, 
-    getTasks, 
-    createTask, 
-    createCategory, 
+import {
+    CategoryRow,
+    TaskRow,
+    createCategory,
+    createTask,
+    deleteTask,
+    getCategories,
+    getTasks,
     toggleTaskCompletion,
-    updateTask,
-    deleteTask
+    updateTask
 } from '@/database/queries';
+import { initDatabase } from '@/database/schema';
+import { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const mapTaskRowToTask = (row: TaskRow): Task => ({
     id: String(row.id),
@@ -74,7 +74,7 @@ export default function TasksScreen() {
         // If it's the 'All' category, fetch all tasks
         const selectedCat = categories.find(c => c.id === categoryId);
         const fetchCategoryId = selectedCat?.name === 'All' ? undefined : categoryId;
-        
+
         const taskRows = await getTasks(fetchCategoryId);
         setTasks(taskRows.map(mapTaskRowToTask));
     };
@@ -125,7 +125,7 @@ export default function TasksScreen() {
         );
     }
 
-    const filteredTasks = tasks.filter(task => 
+    const filteredTasks = tasks.filter(task =>
         task.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -149,9 +149,9 @@ export default function TasksScreen() {
                     </View>
                 ) : (
                     filteredTasks.map((task) => (
-                        <TaskCard 
-                            key={task.id} 
-                            task={task} 
+                        <TaskCard
+                            key={task.id}
+                            task={task}
                             onToggle={handleToggleTask}
                             onEdit={handleEditTask}
                             onDelete={handleDeleteTask}
