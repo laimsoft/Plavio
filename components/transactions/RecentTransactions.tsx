@@ -2,47 +2,48 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
-import { Expense } from './types';
+import { Transaction } from './types';
 
 type Props = {
-    expenses: Expense[];
+    transactions: Transaction[];
+    title?: string;
     formatCurrency: (val: number) => string;
 };
 
-export default function RecentExpenses({ expenses, formatCurrency }: Props) {
+export default function RecentTransactions({ transactions, title, formatCurrency }: Props) {
     return (
         <View style={{ gap: 16 }}>
             <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>Recent Expenses</Text>
+                <Text style={styles.sectionTitle}>{title || 'Recent Transactions'}</Text>
                 <TouchableOpacity activeOpacity={0.7}>
                     <Text style={styles.seeAllText}>See All</Text>
                 </TouchableOpacity>
             </View>
 
             <View style={{ gap: 4 }}>
-                {expenses.map((expense) => (
+                {transactions.map((transaction) => (
                     <TouchableOpacity
-                        key={expense.id}
+                        key={transaction.id}
                         style={styles.expenseRow}
                         activeOpacity={0.7}
                     >
                         <View
-                            style={[styles.expenseIconCircle, { backgroundColor: expense.iconBg }]}
+                            style={[styles.expenseIconCircle, { backgroundColor: transaction.iconBg }]}
                         >
                             <MaterialIcons
-                                name={expense.icon}
+                                name={transaction.icon}
                                 size={22}
-                                color={expense.iconColor}
+                                color={transaction.iconColor}
                             />
                         </View>
                         <View style={styles.expenseInfo}>
-                            <Text style={styles.expenseTitle}>{expense.title}</Text>
+                            <Text style={styles.expenseTitle}>{transaction.title}</Text>
                             <Text style={styles.expenseSubtitle}>
-                                {expense.category} • {expense.date}
+                                {transaction.category} • {transaction.date}
                             </Text>
                         </View>
                         <Text style={styles.expenseAmount}>
-                            -{formatCurrency(expense.amount)}
+                            {formatCurrency(transaction.amount)}
                         </Text>
                     </TouchableOpacity>
                 ))}
