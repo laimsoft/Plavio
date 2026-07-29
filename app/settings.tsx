@@ -1,14 +1,22 @@
 import { colors } from '@/constants/colors';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { SettingsSectionCard } from '@/components/settings/SettingsSectionCard';
 import { SettingsTopBar } from '@/components/settings/SettingsTopBar';
 import { SettingsSection } from '@/components/settings/types';
+import AboutPlavioBottomSheet from '@/components/settings/AboutPlavioBottomSheet';
+import CurrencyRegionBottomSheet from '@/components/settings/CurrencyRegionBottomSheet';
+import PrivacyPolicyBottomSheet from '@/components/settings/PrivacyPolicyBottomSheet';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { currency } = useSettings();
+  const [currencySheetVisible, setCurrencySheetVisible] = useState(false);
+  const [privacyPolicyVisible, setPrivacyPolicyVisible] = useState(false);
+  const [aboutPlavioVisible, setAboutPlavioVisible] = useState(false);
 
   const sections: SettingsSection[] = [
     {
@@ -37,7 +45,8 @@ export default function SettingsScreen() {
         {
           icon: 'currency-exchange',
           title: 'Currency & Region',
-          subtitle: 'Set default currency for expenses',
+          subtitle: `Current: ${currency}`,
+          onPress: () => setCurrencySheetVisible(true),
         },
       ],
     },
@@ -48,11 +57,13 @@ export default function SettingsScreen() {
           icon: 'shield',
           title: 'Privacy Policy',
           subtitle: 'Review how we handle your data',
+          onPress: () => setPrivacyPolicyVisible(true),
         },
         {
           icon: 'info',
-          title: 'About LifeHub',
-          subtitle: 'Version 2.4.1 (Build 492)',
+          title: 'About Plavio',
+          subtitle: 'Version 1.0.0',
+          onPress: () => setAboutPlavioVisible(true),
         },
       ],
     },
@@ -70,6 +81,21 @@ export default function SettingsScreen() {
           <SettingsSectionCard key={section.key} section={section} />
         ))}
       </ScrollView>
+
+      <CurrencyRegionBottomSheet
+        visible={currencySheetVisible}
+        onClose={() => setCurrencySheetVisible(false)}
+      />
+
+      <PrivacyPolicyBottomSheet
+        visible={privacyPolicyVisible}
+        onClose={() => setPrivacyPolicyVisible(false)}
+      />
+
+      <AboutPlavioBottomSheet
+        visible={aboutPlavioVisible}
+        onClose={() => setAboutPlavioVisible(false)}
+      />
     </View>
   );
 }

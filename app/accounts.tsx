@@ -12,6 +12,7 @@ import { RecentTransactions, Transaction } from '../components/accounts/RecentTr
 import { SummarySection } from '../components/accounts/SummarySection';
 import { EditAccountModal } from '../components/accounts/EditAccountModal';
 import { colors } from '../constants/colors';
+import { useSettings } from '../contexts/SettingsContext';
 import { getAccountTransactions, AccountTransactionRow, insertAccountTransaction } from '../database/queries';
 
 const MOCK_EXPENSES = 2250.0; // Keeping expenses hardcoded for now
@@ -27,14 +28,9 @@ const mapRowToTransaction = (row: AccountTransactionRow): Transaction => {
   };
 };
 
-const formatCurrency = (value: number) =>
-  `£${Math.abs(value).toLocaleString('en-GB', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-
 export default function AccountsScreen() {
   const router = useRouter();
+  const { formatCurrency } = useSettings();
   
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState({
@@ -152,7 +148,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 8,
-    bottom: 16,
+    bottom: 110,
     width: 56,
     height: 56,
     borderRadius: 16,

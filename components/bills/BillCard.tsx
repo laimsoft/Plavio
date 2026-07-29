@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 import { Bill, STATUS_COLOR, STRIP_COLOR } from './types';
+import { useSettings } from '@/contexts/SettingsContext';
 
 type Props = {
   bill: Bill;

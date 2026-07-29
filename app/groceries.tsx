@@ -1,4 +1,3 @@
-import GroceryCategoryChips from '@/components/groceries/GroceryCategoryChips';
 import GroceryFab from '@/components/groceries/GroceryFab';
 import GroceryHeader from '@/components/groceries/GroceryHeader';
 import GroceryItemCard, { GroceryItemType } from '@/components/groceries/GroceryItemCard';
@@ -11,12 +10,9 @@ import { getGroceryItems, toggleGroceryItemPurchased, addGroceryItem, clearGroce
 import GroceryInlineCreateCard from '@/components/groceries/GroceryInlineCreateCard';
 import { initDatabase } from '@/database/schema';
 
-const CATEGORIES = ['All', 'Produce', 'Dairy', 'Bakery', 'Frozen', 'Cleaning', 'Snacks'];
-
 export default function GroceriesScreen() {
     const [items, setItems] = useState<GroceryItemType[]>([]);
     const [search, setSearch] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('All');
     
     const [isCreatingInline, setIsCreatingInline] = useState(false);
 
@@ -47,11 +43,9 @@ export default function GroceriesScreen() {
 
     const filteredItems = useMemo(() => {
         return items.filter((item) => {
-            const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
-            return matchesCategory && matchesSearch;
+            return item.name.toLowerCase().includes(search.toLowerCase());
         });
-    }, [items, search, selectedCategory]);
+    }, [items, search]);
 
     const toggleItem = async (id: string) => {
         const itemToToggle = items.find((i) => i.id === id);
@@ -139,13 +133,7 @@ export default function GroceriesScreen() {
             <View style={styles.searchSection}>
                 <GrocerySearchBar search={search} onSearchChange={setSearch} />
                 <View style={styles.categoriesRow}>
-                    <View style={{ flex: 1 }}>
-                        <GroceryCategoryChips
-                            categories={CATEGORIES}
-                            selectedCategory={selectedCategory}
-                            onSelectCategory={setSelectedCategory}
-                        />
-                    </View>
+                    <View style={{ flex: 1 }} />
                     <TouchableOpacity onPress={handleClearAll} style={styles.clearBtn} activeOpacity={0.7}>
                         <Text style={styles.clearBtnText}>Clear</Text>
                     </TouchableOpacity>

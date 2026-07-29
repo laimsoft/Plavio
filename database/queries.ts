@@ -42,6 +42,18 @@ export type AccountTransactionRow = {
   updated_at: string;
 };
 
+export type SettingsRow = {
+  id: number;
+  currency: string;
+  theme: string;
+  date_format: string;
+  time_format: string;
+  language: string;
+  notification_enabled: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export const getCategories = async (): Promise<CategoryRow[]> => {
   const db = await getDatabase();
   return await db.getAllAsync<CategoryRow>('SELECT * FROM categories ORDER BY id ASC');

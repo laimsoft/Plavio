@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
+import { useSettings } from '../../contexts/SettingsContext';
 
 type WithdrawSavingsViewProps = {
   initialSavings: number;
@@ -11,6 +12,7 @@ type WithdrawSavingsViewProps = {
 
 export function WithdrawSavingsView({ initialSavings, onSave, onBack }: WithdrawSavingsViewProps) {
   const [amount, setAmount] = useState('');
+  const { formatCurrency } = useSettings();
 
   const handleSave = () => {
     const parsedAmount = parseFloat(amount) || 0;
@@ -28,7 +30,7 @@ export function WithdrawSavingsView({ initialSavings, onSave, onBack }: Withdraw
       </View>
 
       <Text style={styles.currentAmountText}>
-        Current Savings: {initialSavings.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
+        Current Savings: {formatCurrency(initialSavings)}
       </Text>
 
       <View style={styles.inputGroup}>
