@@ -6,16 +6,14 @@ import { Tab, Transaction } from '@/components/transactions/types';
 import { colors } from '@/constants/colors';
 import { AccountTransactionRow, getAccountTransactions } from '@/database/queries';
 import { initDatabase } from '@/database/schema';
-import { MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+    InteractionManager,
     ScrollView,
     StyleSheet,
     Text,
-    TouchableOpacity,
-    View,
-    InteractionManager,
+    View
 } from 'react-native';
 
 
@@ -79,7 +77,7 @@ export default function TransactionsScreen() {
                     let monthlySpending = 0;
                     let budgetTotal = 0;
                     let savingTotal = 0;
-                    
+
                     allRows.forEach(row => {
                         if (row.transaction_type === 'Budget') budgetTotal += row.amount;
                         else if (row.transaction_type === 'Expense') monthlySpending += row.amount;
@@ -144,12 +142,12 @@ export default function TransactionsScreen() {
 
                 <TransactionTabs activeTab={activeTab} onTabSelect={setActiveTab} />
 
-                <MonthlySummaryCard 
+                <MonthlySummaryCard
                     title={summary.title}
                     amount={summary.amount}
                     changePercent={summary.changePercent}
                     progress={summary.progress}
-                    formatCurrency={formatCurrency} 
+                    formatCurrency={formatCurrency}
                 />
 
                 <RecentTransactions
@@ -161,15 +159,6 @@ export default function TransactionsScreen() {
                 {/* Spacer so content clears the FAB / bottom nav */}
                 <View style={{ height: 88 }} />
             </ScrollView>
-
-            {/* Floating Action Button */}
-            <TouchableOpacity 
-                style={styles.fab} 
-                activeOpacity={0.85}
-                onPress={() => router.push('/add-transaction' as any)}
-            >
-                <MaterialIcons name="add" size={28} color={colors.onPrimary} />
-            </TouchableOpacity>
         </View>
     );
 }

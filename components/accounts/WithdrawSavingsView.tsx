@@ -14,9 +14,7 @@ export function WithdrawSavingsView({ initialSavings, onSave, onBack }: Withdraw
 
   const handleSave = () => {
     const parsedAmount = parseFloat(amount) || 0;
-    // Prevent withdrawing more than what is available
-    const newSavings = Math.max(0, initialSavings - parsedAmount);
-    onSave(newSavings);
+    onSave(parsedAmount);
   };
 
   return (

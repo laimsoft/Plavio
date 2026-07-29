@@ -18,7 +18,7 @@ import { AddExpenseView } from './AddExpenseView';
 type EditAccountModalProps = {
   visible: boolean;
   onClose: () => void;
-  onSave: (totalBudget: number, totalSavings: number) => void;
+  onSave: (name: string, type: 'Budget' | 'Saving' | 'Transfer' | 'Expense', amount: number) => void;
   initialBudget: number;
   initialSavings: number;
 };
@@ -44,8 +44,8 @@ export function EditAccountModal({
         return (
           <AddBudgetView
             initialBudget={initialBudget}
-            onSave={(newBudget) => {
-              onSave(newBudget, initialSavings);
+            onSave={(amount) => {
+              onSave('Added Budget', 'Budget', amount);
               onClose();
             }}
             onBack={() => setView('menu')}
@@ -55,8 +55,8 @@ export function EditAccountModal({
         return (
           <AddSavingsView
             initialSavings={initialSavings}
-            onSave={(newSavings) => {
-              onSave(initialBudget, newSavings);
+            onSave={(amount) => {
+              onSave('Added Savings', 'Saving', amount);
               onClose();
             }}
             onBack={() => setView('menu')}
@@ -66,15 +66,23 @@ export function EditAccountModal({
         return (
           <WithdrawSavingsView
             initialSavings={initialSavings}
-            onSave={(newSavings) => {
-              onSave(initialBudget, newSavings);
+            onSave={(amount) => {
+              onSave('Withdrew Savings', 'Transfer', amount);
               onClose();
             }}
             onBack={() => setView('menu')}
           />
         );
       case 'expense':
-        return <AddExpenseView onBack={() => setView('menu')} />;
+        return (
+          <AddExpenseView 
+            onSave={(name, amount) => {
+              onSave(name, 'Expense', amount);
+              onClose();
+            }}
+            onBack={() => setView('menu')} 
+          />
+        );
       case 'menu':
       default:
         return (

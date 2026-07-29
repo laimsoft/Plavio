@@ -131,6 +131,9 @@ export const insertAccountTransaction = async (
     date,
     description || null,
     categoryId || null
+  );
+};
+
 export const getAccount = async (): Promise<AccountRow | null> => {
   const db = await getDatabase();
   return await db.getFirstAsync<AccountRow>('SELECT * FROM accounts LIMIT 1');

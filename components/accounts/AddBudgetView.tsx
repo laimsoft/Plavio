@@ -14,7 +14,7 @@ export function AddBudgetView({ initialBudget, onSave, onBack }: AddBudgetViewPr
 
   const handleSave = () => {
     const parsedAmount = parseFloat(amount) || 0;
-    onSave(initialBudget + parsedAmount);
+    onSave(parsedAmount);
   };
 
   return (

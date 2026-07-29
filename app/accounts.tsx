@@ -12,7 +12,9 @@ import { RecentTransactions, Transaction } from '../components/accounts/RecentTr
 import { SummarySection } from '../components/accounts/SummarySection';
 import { EditAccountModal } from '../components/accounts/EditAccountModal';
 import { colors } from '../constants/colors';
-import { getAccountTransactions, AccountTransactionRow } from '../database/queries';
+import { getAccountTransactions, AccountTransactionRow, insertAccountTransaction } from '../database/queries';
+
+const MOCK_EXPENSES = 2250.0; // Keeping expenses hardcoded for now
 
 const mapRowToTransaction = (row: AccountTransactionRow): Transaction => {
   return {
@@ -42,79 +44,57 @@ export default function AccountsScreen() {
     savings: 0,
   });
 
+  const loadData = useCallback(async () => {
+    try {
+      const rows = await getAccountTransactions();
+      
+      let totalBudget = 0;
+      let expenses = 0;
+      let savings = 0;
+
+      rows.forEach((row) => {
+        if (row.transaction_type === 'Budget') totalBudget += row.amount;
+        else if (row.transaction_type === 'Expense') expenses += row.amount;
+        else if (row.transaction_type === 'Saving') savings += row.amount;
+        else if (row.transaction_type === 'Transfer') savings -= row.amount; // Withdraw Saving
+      });
+
+      setSummary({
+        totalBudget,
+        expenses,
+        savings,
+        remaining: totalBudget - expenses - savings,
+      });
+
+      setTransactions(rows.slice(0, 5).map(mapRowToTransaction));
+    } catch (error) {
+      console.error("Failed to load accounts data", error);
+    }
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
       const task = InteractionManager.runAfterInteractions(() => {
-        const loadData = async () => {
-          try {
-            const rows = await getAccountTransactions();
-            
-            let totalBudget = 0;
-            let expenses = 0;
-            let savings = 0;
-
-            rows.forEach((row) => {
-              if (row.transaction_type === 'Budget') totalBudget += row.amount;
-              else if (row.transaction_type === 'Expense') expenses += row.amount;
-              else if (row.transaction_type === 'Saving') savings += row.amount;
-            });
-
-            setSummary({
-              totalBudget,
-              expenses,
-              savings,
-              remaining: totalBudget - expenses - savings,
-            });
-
-            setTransactions(rows.slice(0, 5).map(mapRowToTransaction));
-          } catch (error) {
-            console.error("Failed to load accounts data", error);
-          }
-        };
-
         loadData();
       });
       return () => task.cancel();
-    }, [])
+    }, [loadData])
   );
 
-  const [account, setAccount] = useState<AccountRow | null>(null);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
 
-  const fetchAccount = async () => {
+  const handleAddTransaction = async (name: string, type: 'Budget' | 'Saving' | 'Transfer' | 'Expense', amount: number) => {
+    if (amount <= 0) return;
     try {
-      const data = await getAccount();
-      setAccount(data);
+      const today = new Date().toISOString().split('T')[0];
+      await insertAccountTransaction(name, type, amount, today, 'Via Update Account Modal');
+      await loadData(); // Refresh data
     } catch (error) {
-      console.error('Failed to fetch account:', error);
+      console.error('Failed to add transaction:', error);
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchAccount();
-    }, [])
-  );
 
-  const handleSaveAccount = async (budget: number, savings: number) => {
-    try {
-      await updateAccount(budget, savings);
-      await fetchAccount(); // Refresh data
-    } catch (error) {
-      console.error('Failed to update account:', error);
-    }
-  };
-
-  const totalBudget = account?.total_budget || 0;
-  const savings = account?.total_savings || 0;
-  const remaining = Math.max(0, totalBudget - savings - MOCK_EXPENSES);
-
-  const summaryData = {
-    totalBudget,
-    remaining,
-    expenses: MOCK_EXPENSES,
-    savings,
-  };
 
   return (
     <View style={styles.container}>
@@ -126,9 +106,9 @@ export default function AccountsScreen() {
         <SummarySection
           data={summary}
           formatCurrency={formatCurrency}
-          onExpensePress={() => router.push({ pathname: '/transactions', params: { type: 'Expense' } })}
-          onBudgetPress={() => router.push({ pathname: '/transactions', params: { type: 'Budget' } })}
-          onSavingPress={() => router.push({ pathname: '/transactions', params: { type: 'Saving' } })}
+          onExpensePress={() => router.push({ pathname: '/transactions' as any, params: { type: 'Expense' } })}
+          onBudgetPress={() => router.push({ pathname: '/transactions' as any, params: { type: 'Budget' } })}
+          onSavingsPress={() => router.push({ pathname: '/transactions' as any, params: { type: 'Saving' } })}
         />
 
         {/* Recent Transactions */}
@@ -142,18 +122,17 @@ export default function AccountsScreen() {
       <TouchableOpacity 
         style={styles.fab} 
         activeOpacity={0.85}
-        onPress={() => router.push('/add-transaction' as any)}
+        onPress={() => setIsEditModalVisible(true)}
       >
-      <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={() => setIsEditModalVisible(true)}>
         <MaterialIcons name="add" size={28} color={colors.onPrimary} />
       </TouchableOpacity>
 
       <EditAccountModal
         visible={isEditModalVisible}
         onClose={() => setIsEditModalVisible(false)}
-        onSave={handleSaveAccount}
-        initialBudget={totalBudget}
-        initialSavings={savings}
+        onSave={handleAddTransaction}
+        initialBudget={summary.totalBudget}
+        initialSavings={summary.savings}
       />
     </View>
   );

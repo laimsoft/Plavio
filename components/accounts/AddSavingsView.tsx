@@ -14,7 +14,7 @@ export function AddSavingsView({ initialSavings, onSave, onBack }: AddSavingsVie
 
   const handleSave = () => {
     const parsedAmount = parseFloat(amount) || 0;
-    onSave(initialSavings + parsedAmount);
+    onSave(parsedAmount);
   };
 
   return (
