@@ -54,6 +54,16 @@ export type SettingsRow = {
   updated_at: string;
 };
 
+export const getSettings = async (): Promise<SettingsRow | null> => {
+  const db = await getDatabase();
+  return await db.getFirstAsync<SettingsRow>('SELECT * FROM settings LIMIT 1');
+};
+
+export const updateCurrency = async (newCurrency: string): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE settings SET currency = ?, updated_at = CURRENT_TIMESTAMP WHERE id = (SELECT id FROM settings LIMIT 1)', newCurrency);
+};
+
 export const getCategories = async (): Promise<CategoryRow[]> => {
   const db = await getDatabase();
   return await db.getAllAsync<CategoryRow>('SELECT * FROM categories ORDER BY id ASC');
