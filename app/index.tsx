@@ -1,6 +1,4 @@
-import FAB from '@/components/dashboard/FAB';
 import FocusSection from '@/components/dashboard/FocusSection';
-import SearchBar from '@/components/dashboard/SearchBar';
 import SummaryGrid from '@/components/dashboard/SummaryGrid';
 import { colors } from '@/constants/colors';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -16,15 +14,10 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <SearchBar />
+
         <SummaryGrid />
         <FocusSection />
-
-        {/* Spacer for FAB / bottom nav */}
-        <View style={{ height: 96 }} />
       </ScrollView>
-
-      <FAB insetsBottom={0} />
     </View>
   );
 }

@@ -34,14 +34,10 @@ export default function RootLayout() {
   }
 
   return (
-    <SettingsProvider>
-      <View style={styles.container}>
-        <Header insetsTop={insets.top} />
-        <View style={styles.content}>
-          <Stack screenOptions={{ headerShown: false }} />
-        </View>
-        <BottomNav insetsBottom={insets.bottom} />
-        <StatusBar style="auto" />
+    <View style={styles.container}>
+      <Header insetsTop={insets.top} />
+      <View style={[styles.content, { paddingTop: insets.top + 80 }]}>
+        <Stack screenOptions={{ headerShown: false }} />
       </View>
     </SettingsProvider>
   );

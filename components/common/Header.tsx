@@ -1,61 +1,175 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { Animated, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../../constants/colors';
-import SidebarMenu from './SidebarMenu';
+import HamburgerMenu from './HamburgerMenu';
 
 type HeaderProps = {
   insetsTop: number;
 };
 
 export default function Header({ insetsTop }: HeaderProps) {
-  const [menuVisible, setMenuVisible] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const animation = useRef(new Animated.Value(0)).current;
+
+  const toggleMenu = () => {
+    const willOpen = !isMenuOpen;
+    setIsMenuOpen(willOpen);
+
+    Animated.spring(animation, {
+      toValue: willOpen ? 1 : 0,
+      friction: 9,
+      tension: 40,
+      useNativeDriver: false, // Animating layout properties
+    }).start();
+  };
+
+  const headerMaxHeight = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [60, 800], // 60 when closed, 800 when open
+  });
+  const headerPadding = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [6, 16],
+  });
+  const headerRadius = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [50, 28],
+  });
+  const headerColor = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#ffffff', '#F3F4F6'],
+  });
+  const contentOpacity = animation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0, 1],
+  });
+  const contentTranslateY = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-20, 0],
+  });
 
   return (
-    <View style={[styles.header, { paddingTop: insetsTop }]}>
-      <View style={styles.headerRow}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Plavio</Text>
-        </View>
-        <TouchableOpacity 
-          style={styles.headerIconButton} 
-          activeOpacity={0.7}
-          onPress={() => setMenuVisible(true)}
-        >
-          <MaterialIcons name="menu" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-      <SidebarMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
-    </View>
+    <>
+      {isMenuOpen && (
+        <TouchableWithoutFeedback onPress={toggleMenu}>
+          <View style={[StyleSheet.absoluteFill, { zIndex: 55, elevation: 55 }]} />
+        </TouchableWithoutFeedback>
+      )}
+      <Animated.View 
+        style={[
+          styles.headerSafeArea, 
+          { paddingTop: insetsTop || 0 },
+          isMenuOpen && { zIndex: 60, elevation: 60 }
+        ]} 
+        pointerEvents="box-none"
+      >
+        <SafeAreaView pointerEvents="box-none">
+          <View style={styles.headerWrapper} pointerEvents="box-none">
+            <Animated.View style={[
+              styles.header,
+              {
+                maxHeight: headerMaxHeight,
+                padding: headerPadding,
+                borderRadius: headerRadius,
+                backgroundColor: headerColor,
+              }
+            ]}>
+              <View style={styles.headerTopRow}>
+                <View style={styles.logoRow}>
+                  <View style={styles.logoDot} />
+                  <Text style={styles.logoText}>PLAVIO</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.menuButton}
+                  activeOpacity={0.7}
+                  onPress={toggleMenu}
+                >
+                  {isMenuOpen ? (
+                    <MaterialIcons name="close" size={22} color="#1F2937" />
+                  ) : (
+                    <>
+                      <View style={styles.menuLine} />
+                      <View style={styles.menuLine} />
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <Animated.View style={[
+                styles.menuContainer,
+                { opacity: contentOpacity, transform: [{ translateY: contentTranslateY }] }
+              ]} pointerEvents={isMenuOpen ? "auto" : "none"}>
+                <HamburgerMenu onClose={toggleMenu} />
+              </Animated.View>
+            </Animated.View>
+          </View>
+        </SafeAreaView>
+      </Animated.View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.surfaceVariant,
+  headerSafeArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
   },
-  headerRow: {
-    height: 64,
+  headerWrapper: {
     paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  header: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 30,
+    elevation: 10,
+    overflow: 'hidden',
+  },
+  headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 26,
+    height: 48,
   },
-  headerLeft: {
+  logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  headerIconButton: {
-    padding: 8,
-    borderRadius: 999,
+  logoDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FACC15',
   },
-  headerTitle: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: '700',
-    color: colors.primary,
+  logoText: {
+    fontSize: 13,
+    fontWeight: '900',
+    letterSpacing: 2.6,
+    color: '#1F2937',
+  },
+  menuButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#fff',
+  },
+  menuLine: {
+    width: 24,
+    height: 2,
+    backgroundColor: '#1F2937',
+  },
+  menuContainer: {
+    marginTop: 16,
   },
 });
