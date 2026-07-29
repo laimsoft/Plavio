@@ -12,11 +12,15 @@ type SummaryData = {
 export function SummarySection({ 
   data, 
   formatCurrency,
-  onExpensePress
+  onExpensePress,
+  onBudgetPress,
+  onSavingsPress,
 }: { 
   data: SummaryData; 
   formatCurrency: (value: number) => string;
   onExpensePress?: () => void;
+  onBudgetPress?: () => void;
+  onSavingsPress?: () => void;
 }) {
   return (
     <View style={styles.summaryGrid}>
@@ -26,6 +30,7 @@ export function SummarySection({
         iconColor={colors.onPrimaryContainer}
         label="Total Budget"
         value={formatCurrency(data.totalBudget)}
+        onPress={onBudgetPress}
       />
       <StatCard
         icon="savings"
@@ -49,6 +54,7 @@ export function SummarySection({
         iconColor={colors.onSecondaryContainer}
         label="Savings"
         value={formatCurrency(data.savings)}
+        onPress={onSavingsPress}
       />
     </View>
   );

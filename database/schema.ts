@@ -28,6 +28,20 @@ export const initDatabase = async () => {
       completedLabel TEXT,
       FOREIGN KEY (category_id) REFERENCES categories (id)
     );
+
+    CREATE TABLE IF NOT EXISTS accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        total_budget REAL NOT NULL DEFAULT 0
+            CHECK(total_budget >= 0),
+        current_balance REAL NOT NULL DEFAULT 0,
+        remaining_balance REAL NOT NULL DEFAULT 0,
+        total_savings REAL NOT NULL DEFAULT 0
+            CHECK(total_savings >= 0),
+        currency TEXT NOT NULL DEFAULT 'PKR',
+        notes TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   // Insert default categories if none exist
@@ -38,6 +52,14 @@ export const initDatabase = async () => {
       INSERT INTO categories (name) VALUES ('Personal');
       INSERT INTO categories (name) VALUES ('Work');
       INSERT INTO categories (name) VALUES ('Shopping');
+    `);
+  }
+
+  // Insert default account if none exists
+  const accountCountResult = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) as count FROM accounts');
+  if (accountCountResult && accountCountResult.count === 0) {
+    await db.execAsync(`
+      INSERT INTO accounts (total_budget, total_savings, currency) VALUES (0, 0, 'PKR');
     `);
   }
 

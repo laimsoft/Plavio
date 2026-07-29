@@ -6,6 +6,18 @@ export type CategoryRow = {
   name: string;
 };
 
+export type AccountRow = {
+  id: number;
+  total_budget: number;
+  current_balance: number;
+  remaining_balance: number;
+  total_savings: number;
+  currency: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type TaskRow = {
   id: number;
   title: string;
@@ -77,4 +89,21 @@ export const updateTask = async (
 export const deleteTask = async (id: number): Promise<void> => {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM tasks WHERE id = ?', id);
+};
+
+export const getAccount = async (): Promise<AccountRow | null> => {
+  const db = await getDatabase();
+  return await db.getFirstAsync<AccountRow>('SELECT * FROM accounts LIMIT 1');
+};
+
+export const updateAccount = async (
+  totalBudget: number,
+  totalSavings: number
+): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE accounts SET total_budget = ?, total_savings = ?, updated_at = CURRENT_TIMESTAMP WHERE id = (SELECT id FROM accounts LIMIT 1)',
+    totalBudget,
+    totalSavings
+  );
 };
