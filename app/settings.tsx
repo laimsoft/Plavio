@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { SettingsTopBar } from '@/components/settings/SettingsTopBar';
 import { SettingsSectionCard } from '@/components/settings/SettingsSectionCard';
+import { SettingsTopBar } from '@/components/settings/SettingsTopBar';
 import { SettingsSection } from '@/components/settings/types';
 
 export default function SettingsScreen() {
