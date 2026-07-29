@@ -14,13 +14,13 @@ export function SummarySection({
   formatCurrency,
   onExpensePress,
   onBudgetPress,
-  onSavingPress
+  onSavingsPress,
 }: { 
   data: SummaryData; 
   formatCurrency: (value: number) => string;
   onExpensePress?: () => void;
   onBudgetPress?: () => void;
-  onSavingPress?: () => void;
+  onSavingsPress?: () => void;
 }) {
   return (
     <View style={styles.summaryGrid}>
@@ -54,7 +54,7 @@ export function SummarySection({
         iconColor={colors.onSecondaryContainer}
         label="Savings"
         value={formatCurrency(data.savings)}
-        onPress={onSavingPress}
+        onPress={onSavingsPress}
       />
     </View>
   );
