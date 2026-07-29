@@ -1,6 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../constants/colors';
+import { useCallback, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { getTasks, getAccountTransactions, getAccount } from '../../database/queries';
 
 type SummaryCard = {
   key: string;
@@ -16,64 +19,82 @@ type SummaryCard = {
   primaryBg?: boolean;
 };
 
-const summaryCards: SummaryCard[] = [
-  {
-    key: 'tasks',
-    icon: 'checklist',
-    iconBg: colors.primaryContainer,
-    iconColor: colors.onPrimaryContainer,
-    label: 'Today',
-    value: '5',
-    caption: 'Pending Tasks',
-  },
-  {
-    key: 'reminders',
-    icon: 'event',
-    iconBg: colors.tertiaryContainer,
-    iconColor: colors.onTertiaryContainer,
-    label: 'Soon',
-    value: '3',
-    caption: 'Reminders',
-  },
-  {
-    key: 'expenses',
-    icon: 'payments',
-    iconBg: colors.errorContainer,
-    iconColor: colors.onErrorContainer,
-    label: 'Monthly',
-    value: '$1.2k',
-    caption: 'Expenses',
-  },
-  {
-    key: 'budget',
-    icon: 'account-balance-wallet',
-    iconBg: colors.secondaryContainer,
-    iconColor: colors.onSecondaryContainer,
-    label: 'Budget',
-    value: '$840',
-    caption: 'Remaining',
-  },
-  {
-    key: 'oil',
-    icon: 'directions-car',
-    iconBg: colors.surfaceContainerHigh,
-    iconColor: colors.onSurface,
-    label: 'Overdue',
-    value: 'Oil',
-    caption: 'Change Due',
-  },
-  {
-    key: 'goal',
-    icon: 'savings',
-    iconBg: colors.primaryContainer,
-    iconColor: colors.onPrimaryContainer,
-    label: 'Goal',
-    value: '65%',
-    caption: 'Vacation Fund',
-  },
-];
-
 export default function SummaryGrid() {
+  const [totalTasks, setTotalTasks] = useState(0);
+  const [pendingTasks, setPendingTasks] = useState(0);
+  const [expenses, setExpenses] = useState(0);
+  const [remaining, setRemaining] = useState(0);
+
+  const loadData = async () => {
+    try {
+      const tasks = await getTasks();
+      setTotalTasks(tasks.length);
+      setPendingTasks(tasks.filter(t => t.completed === 0).length);
+
+      const rows = await getAccountTransactions();
+      let totalBudget = 0;
+      let totalExpenses = 0;
+      let savings = 0;
+
+      rows.forEach((row) => {
+        if (row.transaction_type === 'Budget') totalBudget += row.amount;
+        else if (row.transaction_type === 'Expense') totalExpenses += row.amount;
+        else if (row.transaction_type === 'Saving') savings += row.amount;
+        else if (row.transaction_type === 'Transfer') savings -= row.amount;
+      });
+
+      setExpenses(totalExpenses);
+      setRemaining(totalBudget - totalExpenses - savings);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+  const summaryCards: SummaryCard[] = [
+    {
+      key: 'total_tasks',
+      icon: 'format-list-numbered',
+      iconBg: colors.primaryContainer,
+      iconColor: colors.onPrimaryContainer,
+      label: 'All Time',
+      value: totalTasks.toString(),
+      caption: 'Total Tasks',
+    },
+    {
+      key: 'tasks',
+      icon: 'checklist',
+      iconBg: colors.tertiaryContainer,
+      iconColor: colors.onTertiaryContainer,
+      label: 'To Do',
+      value: pendingTasks.toString(),
+      caption: 'Pending Tasks',
+    },
+    {
+      key: 'expenses',
+      icon: 'payments',
+      iconBg: colors.errorContainer,
+      iconColor: colors.onErrorContainer,
+      label: 'Total',
+      value: `$${expenses.toFixed(2)}`,
+      caption: 'Expenses',
+    },
+    {
+      key: 'budget',
+      icon: 'account-balance-wallet',
+      iconBg: colors.secondaryContainer,
+      iconColor: colors.onSecondaryContainer,
+      label: 'Budget',
+      value: `$${remaining.toFixed(2)}`,
+      caption: 'Remaining',
+    },
+  ];
+
   return (
     <View style={styles.grid}>
       {summaryCards.map((card) => (

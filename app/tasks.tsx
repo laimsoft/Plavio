@@ -1,5 +1,4 @@
 import CreateTaskModal from '@/components/tasks/CreateTaskModal';
-import SearchBar from '@/components/tasks/SearchBar';
 import TaskCard from '@/components/tasks/TaskCard';
 import TaskFAB from '@/components/tasks/TaskFAB';
 import TaskFilters from '@/components/tasks/TaskFilters';
@@ -40,8 +39,6 @@ export default function TasksScreen() {
     const [isReady, setIsReady] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-
     useEffect(() => {
         const setup = async () => {
             await loadData();
@@ -124,13 +121,8 @@ export default function TasksScreen() {
         );
     }
 
-    const filteredTasks = tasks.filter(task =>
-        task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
     return (
         <View style={styles.screen}>
-            <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
             <TaskFilters
                 categories={categories}
                 activeCategoryId={activeCategoryId}
@@ -142,12 +134,12 @@ export default function TasksScreen() {
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             >
-                {filteredTasks.length === 0 ? (
+                {tasks.length === 0 ? (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyStateText}>No tasks yet.</Text>
                     </View>
                 ) : (
-                    filteredTasks.map((task) => (
+                    tasks.map((task) => (
                         <TaskCard
                             key={task.id}
                             task={task}

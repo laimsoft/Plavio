@@ -1,7 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, SafeAreaView, Text } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
-import { colors } from '../../constants/colors';
 
 type NavItem = {
   key: string;
@@ -26,65 +25,89 @@ export default function BottomNav({ insetsBottom }: BottomNavProps) {
   const pathname = usePathname();
 
   return (
-    <View style={[styles.bottomNav, { paddingBottom: Math.max(insetsBottom, 12) }]}>
-      {navItems.map((item) => {
-        const active = pathname === item.key;
-        return (
-          <TouchableOpacity
-            key={item.key}
-            style={[styles.navItem, active && styles.navItemActive]}
-            activeOpacity={0.7}
-            onPress={() => router.push(item.key as any)}
-          >
-            <MaterialIcons
-              name={item.icon}
-              size={22}
-              color={active ? colors.onSecondaryContainer : colors.onSurfaceVariant}
-            />
-            <Text
-              style={[
-                styles.navLabel,
-                {
-                  color: active ? colors.onSecondaryContainer : colors.onSurfaceVariant,
-                  fontWeight: active ? '700' : '500',
-                },
-              ]}
-            >
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
+    <SafeAreaView style={styles.navSafeArea} pointerEvents="box-none">
+      <View style={[styles.navWrapper, { paddingBottom: Math.max(insetsBottom, 24) }]} pointerEvents="box-none">
+        <View style={styles.nav}>
+          <View style={styles.navBottomRow}>
+            {navItems.map((item) => {
+              const active = pathname === item.key;
+              return (
+                <TouchableOpacity
+                  key={item.key}
+                  style={styles.navButton}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (!active) {
+                      router.push(item.key as any);
+                    }
+                  }}
+                >
+                  <MaterialIcons
+                    name={item.icon}
+                    size={24}
+                    color={active ? "#60A5FA" : "#9CA3AF"}
+                  />
+                  <Text
+                    style={[
+                      styles.navLabel,
+                      {
+                        color: active ? "#60A5FA" : "#9CA3AF",
+                        fontWeight: active ? '700' : '500',
+                      },
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceContainer,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    paddingTop: 10,
-    paddingHorizontal: 8,
+  navSafeArea: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
   },
-  navItem: {
-    flex: 1,
+  navWrapper: {
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  nav: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 40,
+    elevation: 10,
+    overflow: 'hidden',
+    flexDirection: 'column',
+    justifyContent: 'flex-end',
+    backgroundColor: '#ffffff',
+    borderRadius: 40,
+    width: '100%',
+  },
+  navBottomRow: {
+    height: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+  },
+  navButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
-    paddingVertical: 6,
-    borderRadius: 999,
-  },
-  navItemActive: {
-    backgroundColor: colors.secondaryContainer,
+    padding: 4,
   },
   navLabel: {
     fontSize: 10,
-    lineHeight: 14,
-    letterSpacing: 0,
-    marginTop: 4,
+    marginTop: 2,
   },
 });
