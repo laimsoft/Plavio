@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { colors } from '../../constants/colors';
 
 export type StatCardProps = {
@@ -9,11 +9,18 @@ export type StatCardProps = {
   label: string;
   value: string;
   valueColor?: string;
+  onPress?: () => void;
 };
 
-export function StatCard({ icon, iconBg, iconColor, label, value, valueColor }: StatCardProps) {
+export function StatCard({ icon, iconBg, iconColor, label, value, valueColor, onPress }: StatCardProps) {
+  const Container = onPress ? TouchableOpacity : (View as any);
+
   return (
-    <View style={styles.statCard}>
+    <Container 
+      style={styles.statCard}
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+    >
       <View style={styles.statCardHeader}>
         <View style={[styles.statIconCircle, { backgroundColor: iconBg }]}>
           <MaterialIcons name={icon} size={18} color={iconColor} />
@@ -23,7 +30,7 @@ export function StatCard({ icon, iconBg, iconColor, label, value, valueColor }: 
       <Text style={[styles.statValue, valueColor ? { color: valueColor } : null]}>
         {value}
       </Text>
-    </View>
+    </Container>
   );
 }
 
