@@ -4,51 +4,55 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 
 type Props = {
-    summary: {
-        monthlySpending: number;
-        changePercent: number;
-        budgetRemaining: number;
-        budgetTotal: number;
-    };
-    budgetUsedPercent: number;
+    title: string;
+    amount: number;
+    changePercent?: number;
+    progress?: {
+        label: string;
+        remainingAmount: number;
+        totalAmount: number;
+        percent: number;
+    } | null;
     formatCurrency: (val: number) => string;
 };
 
-export default function MonthlySummaryCard({ summary, budgetUsedPercent, formatCurrency }: Props) {
+export default function MonthlySummaryCard({ title, amount, changePercent = 0, progress, formatCurrency }: Props) {
     return (
         <View style={styles.summaryCard}>
             <View style={styles.summaryHeaderRow}>
                 <View>
-                    <Text style={styles.summaryLabel}>MONTHLY SPENDING</Text>
+                    <Text style={styles.summaryLabel}>{title}</Text>
                     <Text style={styles.summaryValue}>
-                        {formatCurrency(summary.monthlySpending)}
+                        {formatCurrency(amount)}
                     </Text>
                 </View>
                 <View style={styles.trendBadge}>
                     <MaterialIcons name="trending-up" size={16} color={colors.onErrorContainer} />
-                    <Text style={styles.trendBadgeText}>+{summary.changePercent}%</Text>
+                    <Text style={styles.trendBadgeText}>+{changePercent}%</Text>
                 </View>
             </View>
 
-            <View style={styles.summaryProgressSection}>
-                <View style={styles.summaryProgressLabels}>
-                    <Text style={styles.summaryProgressLabel}>Budget Remaining</Text>
-                    <Text style={styles.summaryProgressValue}>
-                        {formatCurrency(summary.budgetRemaining)}
-                    </Text>
+            {progress && (
+                <View style={styles.summaryProgressSection}>
+                    <View style={styles.summaryProgressLabels}>
+                        <Text style={styles.summaryProgressLabel}>{progress.label}</Text>
+                        <Text style={styles.summaryProgressValue}>
+                            {formatCurrency(progress.remainingAmount)}
+                        </Text>
+                    </View>
+                    <View style={styles.progressTrack}>
+                        <View
+                            style={[styles.progressFill, { width: `${progress.percent}%` }]}
+                        />
+                    </View>
+                    <View style={styles.summaryFooterRow}>
+                        <Text style={styles.summaryFooterText}>$0</Text>
+                        <Text style={styles.summaryFooterText}>
+                            {formatCurrency(progress.totalAmount)} Total
+                        </Text>
+                    </View>
                 </View>
-                <View style={styles.progressTrack}>
-                    <View
-                        style={[styles.progressFill, { width: `${budgetUsedPercent}%` }]}
-                    />
-                </View>
-                <View style={styles.summaryFooterRow}>
-                    <Text style={styles.summaryFooterText}>$0</Text>
-                    <Text style={styles.summaryFooterText}>
-                        ${summary.budgetTotal.toLocaleString('en-US')} Total
-                    </Text>
-                </View>
-            </View>
+            )}
         </View>
     );
 }

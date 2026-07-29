@@ -28,6 +28,28 @@ export const initDatabase = async () => {
       completedLabel TEXT,
       FOREIGN KEY (category_id) REFERENCES categories (id)
     );
+
+    CREATE TABLE IF NOT EXISTS account_transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      transaction_name TEXT NOT NULL,
+      description TEXT,
+      transaction_type TEXT NOT NULL
+          CHECK(transaction_type IN (
+              'Budget',
+              'Expense',
+              'Saving',
+              'Income',
+              'Debt',
+              'Loan',
+              'Transfer'
+          )),
+      category_id INTEGER,
+      amount REAL NOT NULL
+          CHECK(amount > 0),
+      transaction_date DATE NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   // Insert default categories if none exist

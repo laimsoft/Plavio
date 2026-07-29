@@ -8,7 +8,7 @@ type Props = {
     onChangeText: (text: string) => void;
 };
 
-export default function ExpenseSearchBar({ value, onChangeText }: Props) {
+export default function TransactionSearchBar({ value, onChangeText }: Props) {
     return (
         <View style={styles.searchBar}>
             <MaterialIcons name="search" size={22} color={colors.onSurfaceVariant} />

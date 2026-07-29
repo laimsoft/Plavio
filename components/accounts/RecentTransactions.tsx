@@ -44,7 +44,7 @@ export function RecentTransactions({ transactions, formatCurrency }: { transacti
               </View>
             </View>
             <Text style={styles.transactionAmount}>
-              -{formatCurrency(tx.amount)}
+              {formatCurrency(tx.amount)}
             </Text>
           </View>
         ))}

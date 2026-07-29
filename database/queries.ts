@@ -19,6 +19,18 @@ export type TaskRow = {
   completedLabel: string | null;
 };
 
+export type AccountTransactionRow = {
+  id: number;
+  transaction_name: string;
+  description: string | null;
+  transaction_type: string;
+  category_id: number | null;
+  amount: number;
+  transaction_date: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export const getCategories = async (): Promise<CategoryRow[]> => {
   const db = await getDatabase();
   return await db.getAllAsync<CategoryRow>('SELECT * FROM categories ORDER BY id ASC');
@@ -77,4 +89,35 @@ export const updateTask = async (
 export const deleteTask = async (id: number): Promise<void> => {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM tasks WHERE id = ?', id);
+};
+
+export const getAccountTransactions = async (transactionType?: string): Promise<AccountTransactionRow[]> => {
+  const db = await getDatabase();
+  if (transactionType) {
+    return await db.getAllAsync<AccountTransactionRow>(
+      'SELECT * FROM account_transactions WHERE transaction_type = ? ORDER BY transaction_date DESC, id DESC',
+      transactionType
+    );
+  }
+  return await db.getAllAsync<AccountTransactionRow>('SELECT * FROM account_transactions ORDER BY transaction_date DESC, id DESC');
+};
+
+export const insertAccountTransaction = async (
+  name: string,
+  type: string,
+  amount: number,
+  date: string,
+  description?: string,
+  categoryId?: number
+): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    `INSERT INTO account_transactions (transaction_name, transaction_type, amount, transaction_date, description, category_id) VALUES (?, ?, ?, ?, ?, ?)`,
+    name,
+    type,
+    amount,
+    date,
+    description || null,
+    categoryId || null
+  );
 };
