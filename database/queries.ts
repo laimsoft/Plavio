@@ -235,3 +235,82 @@ export const clearGroceryItems = async (listId: number): Promise<void> => {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM grocery_items WHERE list_id = ?', listId);
 };
+
+export type BillRow = {
+  id: number;
+  name: string;
+  category: string;
+  amount: number;
+  due_date: string;
+  repeat_type: string;
+  reminder_days: number;
+  status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export const getBills = async (): Promise<BillRow[]> => {
+  const db = await getDatabase();
+  return await db.getAllAsync<BillRow>('SELECT * FROM bills ORDER BY due_date ASC');
+};
+
+export const insertBill = async (
+  name: string,
+  category: string,
+  amount: number,
+  due_date: string,
+  repeat_type: string = 'Monthly',
+  status: string = 'Pending',
+  notes?: string
+): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    `INSERT INTO bills (name, category, amount, due_date, repeat_type, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    name,
+    category,
+    amount,
+    due_date,
+    repeat_type,
+    status,
+    notes || null
+  );
+};
+
+export const deleteBill = async (id: number): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM bills WHERE id = ?', id);
+};
+
+export const updateBill = async (
+  id: number,
+  name: string,
+  category: string,
+  amount: number,
+  due_date: string,
+  repeat_type: string = 'Monthly',
+  status: string = 'Pending',
+  notes?: string
+): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE bills SET name = ?, category = ?, amount = ?, due_date = ?, repeat_type = ?, status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+    name,
+    category,
+    amount,
+    due_date,
+    repeat_type,
+    status,
+    notes || null,
+    id
+  );
+};
+
+export const updateBillStatus = async (id: number, status: string): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE bills SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    status,
+    id
+  );
+};

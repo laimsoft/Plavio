@@ -13,6 +13,35 @@ export const initDatabase = async () => {
 
   console.log('Creating tables...');
   await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS bills (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      category TEXT NOT NULL,
+      amount REAL NOT NULL CHECK(amount >= 0),
+      due_date DATE NOT NULL,
+      repeat_type TEXT NOT NULL DEFAULT 'Monthly'
+          CHECK(repeat_type IN (
+              'None',
+              'Weekly',
+              'Monthly',
+              'Quarterly',
+              'Yearly',
+              'Custom'
+          )),
+      reminder_days INTEGER DEFAULT 3,
+      status TEXT NOT NULL DEFAULT 'Pending'
+          CHECK(status IN (
+              'Pending',
+              'Paid',
+              'Overdue'
+          )),
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  await db.execAsync(`
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL

@@ -1,25 +1,52 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
 import { Bill, STATUS_COLOR, STRIP_COLOR } from './types';
 
 type Props = {
   bill: Bill;
+  currency: string;
+  onEdit?: (billId: string) => void;
+  onDelete?: (billId: string) => void;
+  onToggleStatus?: (billId: string, newStatus: string) => void;
 };
 
-const formatCurrency = (value: number) =>
-  `£${value.toLocaleString('en-GB', {
+const formatCurrency = (value: number, currency: string) =>
+  `${currency}${value.toLocaleString('en-GB', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 
-export default function BillCard({ bill }: Props) {
+export default function BillCard({ bill, currency, onEdit, onDelete, onToggleStatus }: Props) {
   const isPaid = bill.status === 'paid';
   const isOverdue = bill.status === 'overdue';
 
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Bill',
+      `Are you sure you want to delete "${bill.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive', 
+          onPress: () => onDelete && onDelete(bill.id) 
+        },
+      ]
+    );
+  };
+
+  const handleCardPress = () => {
+    if (onToggleStatus) {
+      onToggleStatus(bill.id, isPaid ? 'Pending' : 'Paid');
+    }
+  };
+
   return (
-    <View
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={handleCardPress}
       style={[
         styles.billCard,
         isPaid && styles.billCardPaid,
@@ -27,77 +54,77 @@ export default function BillCard({ bill }: Props) {
       ]}
     >
       <View style={[styles.billStrip, { backgroundColor: STRIP_COLOR[bill.status] }]} />
-      <View
-        style={[
-          styles.billCardInner,
-          isOverdue && styles.billCardInnerOverdue,
-        ]}
-      >
-        <View style={styles.billLeft}>
-          <View style={styles.billIconBox}>
-            <MaterialIcons name={bill.icon} size={22} color={colors.onSurface} />
-          </View>
-          <View>
-            <Text style={[styles.billTitle, isPaid && styles.billTitlePaid]}>
-              {bill.title}
-            </Text>
-            <View style={styles.billMetaRow}>
-              <Text style={styles.billAmount}>{formatCurrency(bill.amount)}</Text>
-              <View style={styles.dot} />
-              <Text
-                style={[
-                  styles.billStatusText,
-                  { color: STATUS_COLOR[bill.status] },
-                  isOverdue && { fontWeight: '700' },
-                ]}
-              >
-                {bill.statusText}
+      
+      <View style={styles.billContent}>
+        <View style={styles.billTopRow}>
+          <View style={styles.billLeft}>
+            <View style={[styles.billIconBox, bill.iconBg ? { backgroundColor: bill.iconBg } : null]}>
+              <MaterialIcons name={bill.icon} size={24} color={bill.iconColor || colors.onSurface} />
+            </View>
+            <View style={{ justifyContent: 'center' }}>
+              <Text style={[styles.billTitle, isPaid && styles.billTitlePaid]} numberOfLines={1}>
+                {bill.title}
               </Text>
             </View>
           </View>
-        </View>
-        <View style={styles.billRight}>
-          <View style={styles.badge}>
-            <MaterialIcons
-              name={bill.badgeIcon}
-              size={12}
-              color={colors.onSurface}
-              style={{ marginRight: 4 }}
-            />
-            <Text style={styles.badgeText}>{bill.badgeLabel}</Text>
+          
+          <View style={styles.billRight}>
+            <Text style={styles.billAmount}>{formatCurrency(bill.amount, currency)}</Text>
           </View>
-          <Text
-            style={[
-              styles.billDate,
-              isOverdue && { color: colors.error },
-            ]}
-          >
-            {bill.date}
-          </Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.billBottomRow}>
+          <View style={styles.statusRow}>
+            <View style={[styles.statusDot, { backgroundColor: STATUS_COLOR[bill.status] }]} />
+            <Text
+              style={[
+                styles.billStatusText,
+                { color: isPaid ? STATUS_COLOR[bill.status] : 'red' },
+                !isPaid && { fontWeight: '700' },
+              ]}
+            >
+              {bill.statusText}
+            </Text>
+          </View>
+
+          <View style={styles.actionsRow}>
+            <TouchableOpacity style={styles.actionButton} onPress={() => onEdit && onEdit(bill.id)}>
+              <MaterialIcons name="edit" size={18} color={colors.onSurfaceVariant} />
+              <Text style={styles.actionText}>Edit</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionButton} onPress={handleDelete}>
+              <MaterialIcons name="delete-outline" size={18} color={colors.error} />
+              <Text style={[styles.actionText, { color: colors.error }]}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   billCard: {
     backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 20,
+    borderWidth: 1,
     borderColor: colors.outlineVariant,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
   billCardPaid: {
     opacity: 0.7,
   },
   billCardOverdue: {
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderWidth: 1.5,
   },
   billStrip: {
     position: 'absolute',
@@ -106,90 +133,91 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 6,
   },
-  billCardInner: {
-    paddingVertical: 16,
+  billContent: {
+    paddingLeft: 22,
     paddingRight: 16,
-    paddingLeft: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingTop: 16,
+    paddingBottom: 12,
   },
-  billCardInnerOverdue: {
-    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+  billTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   billLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    flexShrink: 1,
+    flex: 1,
   },
   billIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: 52,
+    height: 52,
+    borderRadius: 16,
     backgroundColor: colors.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
     borderColor: 'rgba(196, 197, 216, 0.3)',
   },
   billTitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     color: colors.onSurface,
+    marginBottom: 4,
   },
   billTitlePaid: {
     textDecorationLine: 'line-through',
     color: colors.outline,
   },
-  billMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 4,
-  },
-  billAmount: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.onSurfaceVariant,
-  },
-  billStatusText: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
-    fontWeight: '500',
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.outline,
-  },
   billRight: {
     alignItems: 'flex-end',
-    gap: 8,
+    justifyContent: 'center',
   },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    backgroundColor: colors.surfaceContainerHigh,
-  },
-  badgeText: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
-    fontWeight: '500',
+  billAmount: {
+    fontSize: 18,
+    fontWeight: '700',
     color: colors.onSurface,
   },
-  billDate: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
-    fontWeight: '500',
+  divider: {
+    height: 1,
+    backgroundColor: colors.surfaceVariant,
+    marginBottom: 12,
+  },
+  billBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  billStatusText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    padding: 6,
+  },
+  actionText: {
+    fontSize: 13,
+    fontWeight: '600',
     color: colors.onSurfaceVariant,
   },
 });

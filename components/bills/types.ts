@@ -9,7 +9,7 @@ export const SUMMARY = {
   totalMonthlySubtitle: '3/8 Paid',
 };
 
-export const FILTERS = ['All', 'Bills', 'Subscriptions', 'Paid', 'Upcoming', 'Overdue'] as const;
+export const FILTERS = ['All', 'Bills', 'Subscriptions', 'Paid', 'Unpaid'] as const;
 export type Filter = (typeof FILTERS)[number];
 
 export type BillStatus = 'due' | 'paid' | 'overdue' | 'upcoming';
@@ -17,12 +17,15 @@ export type BillStatus = 'due' | 'paid' | 'overdue' | 'upcoming';
 export type Bill = {
   id: string;
   icon: keyof typeof MaterialIcons.glyphMap;
+  iconColor?: string;
+  iconBg?: string;
   title: string;
   amount: number;
   statusText: string;
   status: BillStatus;
   badgeIcon: keyof typeof MaterialIcons.glyphMap;
   badgeLabel: string;
+  category: string;
   date: string;
 };
 
@@ -36,6 +39,7 @@ export const BILLS: Bill[] = [
     status: 'due',
     badgeIcon: 'autorenew',
     badgeLabel: 'Recurring',
+    category: 'Bills',
     date: 'Oct 15',
   },
   {
@@ -47,6 +51,7 @@ export const BILLS: Bill[] = [
     status: 'paid',
     badgeIcon: 'autorenew',
     badgeLabel: 'Recurring',
+    category: 'Subscription',
     date: 'Oct 10',
   },
   {
@@ -58,6 +63,7 @@ export const BILLS: Bill[] = [
     status: 'overdue',
     badgeIcon: 'receipt-long',
     badgeLabel: 'Bill',
+    category: 'Bills',
     date: 'Oct 08',
   },
   {
@@ -69,6 +75,7 @@ export const BILLS: Bill[] = [
     status: 'upcoming',
     badgeIcon: 'receipt-long',
     badgeLabel: 'Bill',
+    category: 'Bills',
     date: 'Oct 25',
   },
 ];

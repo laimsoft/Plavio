@@ -2,9 +2,14 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/constants/colors';
-import { SUMMARY } from './types';
 
-export default function BillsSummaryCards() {
+type SummaryProps = {
+  upcomingAmount: number;
+  totalMonthly: number;
+  currency: string;
+};
+
+export default function BillsSummaryCards({ upcomingAmount, totalMonthly, currency }: SummaryProps) {
   return (
     <View style={styles.summaryGrid}>
       <View style={styles.summaryCard}>
@@ -19,8 +24,8 @@ export default function BillsSummaryCards() {
           <Text style={styles.summaryLabel}>Upcoming Payments</Text>
         </View>
         <View style={{ marginTop: 8 }}>
-          <Text style={styles.summaryValue}>£{SUMMARY.upcomingAmount}</Text>
-          <Text style={styles.summarySubtitle}>{SUMMARY.upcomingSubtitle}</Text>
+          <Text style={styles.summaryValue}>{currency}{upcomingAmount.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</Text>
+          <Text style={styles.summarySubtitle}>Due in 7 days</Text>
         </View>
       </View>
 
@@ -36,8 +41,8 @@ export default function BillsSummaryCards() {
           <Text style={styles.summaryLabel}>Total Monthly Bills</Text>
         </View>
         <View style={{ marginTop: 8 }}>
-          <Text style={styles.summaryValue}>£{SUMMARY.totalMonthly}</Text>
-          <Text style={styles.summarySubtitle}>{SUMMARY.totalMonthlySubtitle}</Text>
+          <Text style={styles.summaryValue}>{currency}{totalMonthly.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</Text>
+          <Text style={styles.summarySubtitle}>This Month</Text>
         </View>
       </View>
     </View>
