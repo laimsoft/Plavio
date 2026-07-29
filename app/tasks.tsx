@@ -44,7 +44,6 @@ export default function TasksScreen() {
 
     useEffect(() => {
         const setup = async () => {
-            await initDatabase();
             await loadData();
             setIsReady(true);
         };
