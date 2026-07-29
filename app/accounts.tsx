@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { BudgetUsage } from '../components/accounts/BudgetUsage';
-import { FinancialOverview, OverviewItem } from '../components/accounts/FinancialOverview';
 import { RecentTransactions, Transaction } from '../components/accounts/RecentTransactions';
 import { SummarySection } from '../components/accounts/SummarySection';
 import { colors } from '../constants/colors';
@@ -19,14 +17,6 @@ const SUMMARY = {
   expenses: 2250.0,
   savings: 500.0,
 };
-
-const USAGE_PERCENT = 64; // Budget Usage ring
-
-const OVERVIEW: OverviewItem[] = [
-  { label: 'Total Budget', percent: 100, color: 'primary' },
-  { label: 'Spent', percent: 64, color: 'error' },
-  { label: 'Remaining', percent: 36, color: 'secondaryContainer' },
-];
 
 const TRANSACTIONS: Transaction[] = [
   {
@@ -76,16 +66,6 @@ export default function AccountsScreen() {
           formatCurrency={formatCurrency} 
           onExpensePress={() => router.push('/expenses')}
         />
-
-        {/* Budget Usage (Circular Progress) */}
-        <BudgetUsage
-          usagePercent={USAGE_PERCENT}
-          expenses={SUMMARY.expenses}
-          remaining={SUMMARY.remaining}
-        />
-
-        {/* Financial Overview (Linear Progress) */}
-        <FinancialOverview data={OVERVIEW} />
 
         {/* Recent Transactions */}
         <RecentTransactions transactions={TRANSACTIONS} formatCurrency={formatCurrency} />
