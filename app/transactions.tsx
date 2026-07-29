@@ -7,6 +7,7 @@ import { colors } from '@/constants/colors';
 import { AccountTransactionRow, getAccountTransactions } from '@/database/queries';
 import { initDatabase } from '@/database/schema';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useSettings } from '@/contexts/SettingsContext';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     InteractionManager,
@@ -15,14 +16,6 @@ import {
     Text,
     View
 } from 'react-native';
-
-
-
-const formatCurrency = (value: number) =>
-    `$${value.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    })}`;
 
 const mapRowToTransaction = (row: AccountTransactionRow): Transaction => {
     return {
@@ -39,6 +32,7 @@ const mapRowToTransaction = (row: AccountTransactionRow): Transaction => {
 
 export default function TransactionsScreen() {
     const router = useRouter();
+    const { formatCurrency } = useSettings();
     const { type } = useLocalSearchParams<{ type: string }>();
     const [search, setSearch] = useState('');
     const [activeTab, setActiveTab] = useState<Tab>((type as Tab) || 'Expense');

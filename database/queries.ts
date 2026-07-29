@@ -42,6 +42,18 @@ export type AccountTransactionRow = {
   updated_at: string;
 };
 
+export type SettingsRow = {
+  id: number;
+  currency: string;
+  theme: string;
+  date_format: string;
+  time_format: string;
+  language: string;
+  notification_enabled: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export const getCategories = async (): Promise<CategoryRow[]> => {
   const db = await getDatabase();
   return await db.getAllAsync<CategoryRow>('SELECT * FROM categories ORDER BY id ASC');
@@ -234,4 +246,17 @@ export const toggleGroceryItemPurchased = async (id: number, currentPurchased: n
 export const clearGroceryItems = async (listId: number): Promise<void> => {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM grocery_items WHERE list_id = ?', listId);
+};
+
+export const getSettings = async (): Promise<SettingsRow | null> => {
+  const db = await getDatabase();
+  return await db.getFirstAsync<SettingsRow>('SELECT * FROM settings LIMIT 1');
+};
+
+export const updateCurrency = async (currency: string): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE settings SET currency = ?, updated_at = CURRENT_TIMESTAMP WHERE id = (SELECT id FROM settings LIMIT 1)',
+    currency
+  );
 };
