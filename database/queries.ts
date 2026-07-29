@@ -102,6 +102,37 @@ export const deleteTask = async (id: number): Promise<void> => {
   await db.runAsync('DELETE FROM tasks WHERE id = ?', id);
 };
 
+export const getAccountTransactions = async (transactionType?: string): Promise<AccountTransactionRow[]> => {
+  const db = await getDatabase();
+  if (transactionType) {
+    return await db.getAllAsync<AccountTransactionRow>(
+      'SELECT * FROM account_transactions WHERE transaction_type = ? ORDER BY transaction_date DESC, id DESC',
+      transactionType
+    );
+  }
+  return await db.getAllAsync<AccountTransactionRow>('SELECT * FROM account_transactions ORDER BY transaction_date DESC, id DESC');
+};
+
+export const insertAccountTransaction = async (
+  name: string,
+  type: string,
+  amount: number,
+  date: string,
+  description?: string,
+  categoryId?: number
+): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    `INSERT INTO account_transactions (transaction_name, transaction_type, amount, transaction_date, description, category_id) VALUES (?, ?, ?, ?, ?, ?)`,
+    name,
+    type,
+    amount,
+    date,
+    description || null,
+    categoryId || null
+  );
+};
+
 export type GroceryItemRow = {
   id: number;
   list_id: number;
@@ -143,11 +174,32 @@ export const addGroceryItem = async (
      VALUES (?, ?, ?, ?, ?, ?, 0)`,
     listId,
     name,
-    type,
-    amount,
-    date,
-    description || null,
-    categoryId || null
+    quantity,
+    unit,
+    categoryId,
+    notes
+  );
+};
+
+export const updateGroceryItem = async (
+  id: number,
+  name: string,
+  quantity: number,
+  unit: string | null,
+  categoryId: number | null,
+  notes: string | null
+): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE grocery_items 
+     SET name = ?, quantity = ?, unit = ?, category_id = ?, notes = ? 
+     WHERE id = ?`,
+    name,
+    quantity,
+    unit,
+    categoryId,
+    notes,
+    id
   );
 };
 
@@ -162,15 +214,9 @@ export const updateAccount = async (
 ): Promise<void> => {
   const db = await getDatabase();
   await db.runAsync(
-    `UPDATE grocery_items 
-     SET name = ?, quantity = ?, unit = ?, category_id = ?, notes = ? 
-     WHERE id = ?`,
-    name,
-    quantity,
-    unit,
-    categoryId,
-    notes,
-    id
+    'UPDATE accounts SET total_budget = ?, total_savings = ?, updated_at = CURRENT_TIMESTAMP WHERE id = (SELECT id FROM accounts LIMIT 1)',
+    totalBudget,
+    totalSavings
   );
 };
 
