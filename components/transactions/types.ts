@@ -1,9 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 
-export const TABS = ['Expenses', 'Bills', 'Budget', 'Savings', 'Debt'] as const;
+export const TABS = ['Budget', 'Expense', 'Saving'] as const;
 export type Tab = (typeof TABS)[number];
 
-export type Expense = {
+export type Transaction = {
     id: string;
     icon: keyof typeof MaterialIcons.glyphMap;
     iconBg: string;

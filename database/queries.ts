@@ -6,6 +6,18 @@ export type CategoryRow = {
   name: string;
 };
 
+export type AccountRow = {
+  id: number;
+  total_budget: number;
+  current_balance: number;
+  remaining_balance: number;
+  total_savings: number;
+  currency: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type TaskRow = {
   id: number;
   title: string;
@@ -17,6 +29,18 @@ export type TaskRow = {
   trailingIcon: string | null;
   completed: number;
   completedLabel: string | null;
+};
+
+export type AccountTransactionRow = {
+  id: number;
+  transaction_name: string;
+  description: string | null;
+  transaction_type: string;
+  category_id: number | null;
+  amount: number;
+  transaction_date: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export const getCategories = async (): Promise<CategoryRow[]> => {

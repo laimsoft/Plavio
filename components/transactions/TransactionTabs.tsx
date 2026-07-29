@@ -8,7 +8,7 @@ type Props = {
     onTabSelect: (tab: Tab) => void;
 };
 
-export default function ExpenseTabs({ activeTab, onTabSelect }: Props) {
+export default function TransactionTabs({ activeTab, onTabSelect }: Props) {
     return (
         <ScrollView
             horizontal

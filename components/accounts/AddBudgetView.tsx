@@ -1,0 +1,106 @@
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { colors } from '../../constants/colors';
+
+type AddBudgetViewProps = {
+  initialBudget: number;
+  onSave: (newBudget: number) => void;
+  onBack: () => void;
+};
+
+export function AddBudgetView({ initialBudget, onSave, onBack }: AddBudgetViewProps) {
+  const [amount, setAmount] = useState('');
+
+  const handleSave = () => {
+    const parsedAmount = parseFloat(amount) || 0;
+    onSave(initialBudget + parsedAmount);
+  };
+
+  return (
+    <View>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={onBack} style={styles.iconBtn}>
+          <MaterialIcons name="arrow-back" size={24} color={colors.onSurfaceVariant} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Add Budget</Text>
+        <View style={styles.iconBtn} />
+      </View>
+
+      <Text style={styles.currentAmountText}>
+        Current Budget: {initialBudget.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
+      </Text>
+
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Amount to Add</Text>
+        <TextInput
+          style={styles.input}
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="numeric"
+          placeholder="0.00"
+          placeholderTextColor={colors.onSurfaceVariant}
+          autoFocus
+        />
+      </View>
+
+      <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+        <Text style={styles.saveBtnText}>Add</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+  },
+  iconBtn: {
+    padding: 4,
+    width: 32,
+    alignItems: 'center',
+  },
+  currentAmountText: {
+    fontSize: 16,
+    color: colors.onSurfaceVariant,
+    marginBottom: 24,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    color: colors.onSurfaceVariant,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  input: {
+    backgroundColor: colors.surfaceVariant,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: colors.onSurface,
+  },
+  saveBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: 100,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  saveBtnText: {
+    color: colors.onPrimary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
