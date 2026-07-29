@@ -1,4 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import {
   ScrollView,
   StyleSheet,
@@ -61,6 +62,8 @@ const formatCurrency = (value: number) =>
   })}`;
 
 export default function AccountsScreen() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -68,7 +71,11 @@ export default function AccountsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Summary Section (Bento Grid) */}
-        <SummarySection data={SUMMARY} formatCurrency={formatCurrency} />
+        <SummarySection 
+          data={SUMMARY} 
+          formatCurrency={formatCurrency} 
+          onExpensePress={() => router.push('/expenses')}
+        />
 
         {/* Budget Usage (Circular Progress) */}
         <BudgetUsage
