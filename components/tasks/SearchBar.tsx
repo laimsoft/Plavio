@@ -1,42 +1,50 @@
 import { colors } from '@/constants/colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View, TouchableOpacity } from 'react-native';
 import { extra } from './constants';
 
 type SearchBarProps = {
     value: string;
     onChangeText: (text: string) => void;
+    onFilterPress?: () => void;
 };
 
-export default function SearchBar({ value, onChangeText }: SearchBarProps) {
+export default function SearchBar({ value, onChangeText, onFilterPress }: SearchBarProps) {
     return (
         <View style={styles.searchSection}>
             <View style={styles.searchWrapper}>
                 <MaterialIcons
                     name="search"
                     size={20}
-                    color={colors.onSurfaceVariant}
+                    color="#9CA3AF"
                     style={styles.searchIcon}
                 />
                 <TextInput
                     style={styles.searchInput}
                     placeholder="Search tasks..."
-                    placeholderTextColor={colors.onSurfaceVariant}
+                    placeholderTextColor="#9CA3AF"
                     value={value}
                     onChangeText={onChangeText}
                 />
             </View>
+            <TouchableOpacity style={styles.filterBtn} activeOpacity={0.7} onPress={onFilterPress}>
+                <MaterialIcons name="tune" size={20} color="#4B5563" />
+            </TouchableOpacity>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     searchSection: {
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        backgroundColor: colors.background,
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 12,
+        backgroundColor: '#F8F9FA',
+        flexDirection: 'row',
+        gap: 12,
     },
     searchWrapper: {
+        flex: 1,
         position: 'relative',
         justifyContent: 'center',
     },
@@ -46,14 +54,25 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     searchInput: {
-        backgroundColor: extra.surfaceContainerLow,
+        backgroundColor: '#FFFFFF',
         borderWidth: 1,
-        borderColor: extra.outlineVariant,
-        borderRadius: 999,
-        paddingVertical: 12,
-        paddingLeft: 48,
+        borderColor: '#F3F4F6',
+        borderRadius: 16,
+        paddingVertical: 14,
+        paddingLeft: 44,
         paddingRight: 16,
         fontSize: 14,
-        color: extra.onSurface,
+        color: '#374151',
+        height: 52,
+    },
+    filterBtn: {
+        width: 52,
+        height: 52,
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+        borderRadius: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

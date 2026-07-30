@@ -1,4 +1,5 @@
 import CreateTaskModal from '@/components/tasks/CreateTaskModal';
+import SearchBar from '@/components/tasks/SearchBar';
 import TaskCard from '@/components/tasks/TaskCard';
 import TaskFAB from '@/components/tasks/TaskFAB';
 import TaskFilters from '@/components/tasks/TaskFilters';
@@ -15,7 +16,6 @@ import {
     toggleTaskCompletion,
     updateTask
 } from '@/database/queries';
-import { initDatabase } from '@/database/schema';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -39,6 +39,8 @@ export default function TasksScreen() {
     const [isReady, setIsReady] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showCategories, setShowCategories] = useState(false);
     useEffect(() => {
         const setup = async () => {
             await loadData();
@@ -123,23 +125,27 @@ export default function TasksScreen() {
 
     return (
         <View style={styles.screen}>
-            <TaskFilters
-                categories={categories}
-                activeCategoryId={activeCategoryId}
-                onCategorySelect={setActiveCategoryId}
-            />
+            <SearchBar value={searchQuery} onChangeText={setSearchQuery} onFilterPress={() => setShowCategories(!showCategories)} />
+
+            {showCategories && (
+                <TaskFilters
+                    categories={categories}
+                    activeCategoryId={activeCategoryId}
+                    onCategorySelect={setActiveCategoryId}
+                />
+            )}
 
             <ScrollView
                 style={styles.list}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             >
-                {tasks.length === 0 ? (
+                {tasks.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 ? (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyStateText}>No tasks yet.</Text>
                     </View>
                 ) : (
-                    tasks.map((task) => (
+                    tasks.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase())).map((task) => (
                         <TaskCard
                             key={task.id}
                             task={task}
@@ -150,7 +156,7 @@ export default function TasksScreen() {
                     ))
                 )}
 
-                <View style={{ height: 80 }} />
+                <View style={{ height: 160 }} />
             </ScrollView>
 
             <TaskFAB onPress={() => { setTaskToEdit(null); setModalVisible(true); }} />
@@ -170,7 +176,7 @@ export default function TasksScreen() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: '#F8F9FA',
     },
     list: {
         flex: 1,
@@ -178,7 +184,7 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: 16,
         paddingTop: 16,
-        gap: 16,
+        gap: 12,
     },
     emptyState: {
         paddingVertical: 32,
