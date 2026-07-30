@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../constants/colors';
 import { useSettings } from '../../contexts/SettingsContext';
 
@@ -46,8 +47,15 @@ export function AddSavingsView({ initialSavings, onSave, onBack }: AddSavingsVie
         />
       </View>
 
-      <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
-        <Text style={styles.saveBtnText}>Add</Text>
+      <TouchableOpacity onPress={handleSave} style={{ marginTop: 8 }}>
+        <LinearGradient
+          colors={['#10B981', '#06B6D4']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.saveBtn}
+        >
+          <Text style={styles.saveBtnText}>Add</Text>
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -94,11 +102,9 @@ const styles = StyleSheet.create({
     color: colors.onSurface,
   },
   saveBtn: {
-    backgroundColor: colors.primary,
     borderRadius: 100,
     padding: 16,
     alignItems: 'center',
-    marginTop: 8,
   },
   saveBtnText: {
     color: colors.onPrimary,

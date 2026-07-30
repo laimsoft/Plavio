@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '@/constants/colors';
 import { Tab, TABS } from './types';
 
@@ -17,14 +18,30 @@ export default function TransactionTabs({ activeTab, onTabSelect }: Props) {
         >
             {TABS.map((tab) => {
                 const active = tab === activeTab;
+                if (active) {
+                    return (
+                        <TouchableOpacity key={tab} activeOpacity={0.8} onPress={() => onTabSelect(tab)}>
+                            <LinearGradient
+                                colors={['#10B981', '#06B6D4']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.tabChipActive}
+                            >
+                                <Text style={styles.tabChipTextActive}>
+                                    {tab}
+                                </Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    );
+                }
                 return (
                     <TouchableOpacity
                         key={tab}
-                        style={[styles.tabChip, active && styles.tabChipActive]}
+                        style={styles.tabChip}
                         activeOpacity={0.8}
                         onPress={() => onTabSelect(tab)}
                     >
-                        <Text style={[styles.tabChipText, active && styles.tabChipTextActive]}>
+                        <Text style={styles.tabChipText}>
                             {tab}
                         </Text>
                     </TouchableOpacity>
@@ -47,7 +64,9 @@ const styles = StyleSheet.create({
         backgroundColor: colors.surfaceContainer,
     },
     tabChipActive: {
-        backgroundColor: colors.primary,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 999,
     },
     tabChipText: {
         fontSize: 14,

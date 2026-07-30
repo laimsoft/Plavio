@@ -1,9 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { colors } from '../../constants/colors';
 
 export type StatCardProps = {
-  icon: keyof typeof MaterialIcons.glyphMap;
+  icon: keyof typeof MaterialIcons.glyphMap | string;
   iconBg: string;
   iconColor: string;
   label: string;
@@ -21,59 +20,65 @@ export function StatCard({ icon, iconBg, iconColor, label, value, valueColor, on
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
-      <View style={styles.statCardHeader}>
-        <View style={[styles.statIconCircle, { backgroundColor: iconBg }]}>
-          <MaterialIcons name={icon} size={18} color={iconColor} />
-        </View>
-        <Text style={styles.statLabel}>{label}</Text>
+      <View style={[styles.statIconCircle, { backgroundColor: iconBg }]}>
+        <MaterialIcons name={icon as any} size={20} color={iconColor} />
       </View>
-      <Text style={[styles.statValue, valueColor ? { color: valueColor } : null]}>
-        {value}
-      </Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.statLabel}>{label}</Text>
+        <Text style={[styles.statValue, valueColor ? { color: valueColor } : null]}>
+          {value}
+        </Text>
+      </View>
+      <View style={styles.chevronContainer}>
+        <MaterialIcons name="chevron-right" size={16} color="#9ca3af" />
+      </View>
     </Container>
   );
 }
 
 const styles = StyleSheet.create({
   statCard: {
-    flexBasis: '47%',
-    flexGrow: 1,
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.surfaceVariant,
-    padding: 16,
-    gap: 8,
+    width: '47%',
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    padding: 20,
     shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowRadius: 16,
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
-  statCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    elevation: 2,
+    justifyContent: 'space-between',
   },
   statIconCircle: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 12,
+  },
+  textContainer: {
+    gap: 4,
   },
   statLabel: {
-    fontSize: 14,
-    lineHeight: 20,
-    letterSpacing: 0.1,
+    fontSize: 12,
     fontWeight: '500',
-    color: colors.onSurfaceVariant,
+    color: '#9ca3af',
   },
   statValue: {
-    fontSize: 20,
-    lineHeight: 28,
+    fontSize: 15,
     fontWeight: '600',
-    color: colors.onSurface,
-    marginTop: 4,
+    color: '#1f2937',
+  },
+  chevronContainer: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

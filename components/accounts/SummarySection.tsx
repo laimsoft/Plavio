@@ -1,6 +1,5 @@
 import { StyleSheet, View } from 'react-native';
 import { StatCard } from './StatCard';
-import { colors } from '../../constants/colors';
 
 type SummaryData = {
   totalBudget: number;
@@ -25,35 +24,37 @@ export function SummarySection({
   return (
     <View style={styles.summaryGrid}>
       <StatCard
-        icon="account-balance-wallet"
-        iconBg={colors.primaryContainer}
-        iconColor={colors.onPrimaryContainer}
+        icon="wallet"
+        iconBg="#f5f3ff"
+        iconColor="#a855f7"
         label="Total Budget"
         value={formatCurrency(data.totalBudget)}
         onPress={onBudgetPress}
       />
       <StatCard
         icon="savings"
-        iconBg={colors.surfaceVariant}
-        iconColor={colors.onSurface}
+        iconBg="#ecfdf5"
+        iconColor="#10b981"
         label="Remaining"
         value={formatCurrency(data.remaining)}
-        valueColor={colors.primary}
+        valueColor="#059669"
       />
       <StatCard
         icon="trending-down"
-        iconBg={colors.errorContainer}
-        iconColor={colors.onErrorContainer}
+        iconBg="#fef2f2"
+        iconColor="#f87171"
         label="Expenses"
         value={formatCurrency(data.expenses)}
+        valueColor="#ef4444"
         onPress={onExpensePress}
       />
       <StatCard
-        icon="payments"
-        iconBg={colors.secondaryContainer}
-        iconColor={colors.onSecondaryContainer}
+        icon="account-balance"
+        iconBg="#eff6ff"
+        iconColor="#3b82f6"
         label="Savings"
         value={formatCurrency(data.savings)}
+        valueColor="#2563eb"
         onPress={onSavingsPress}
       />
     </View>
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
   summaryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 16,
   },
 });
