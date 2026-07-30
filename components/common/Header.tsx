@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { Animated, SafeAreaView, StyleSheet, Text, TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import React, { useRef, useState } from 'react';
+import { Animated, Image, SafeAreaView, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import HamburgerMenu from './HamburgerMenu';
 
 type HeaderProps = {
@@ -55,12 +55,12 @@ export default function Header({ insetsTop }: HeaderProps) {
           <View style={[StyleSheet.absoluteFill, { zIndex: 55, elevation: 55 }]} />
         </TouchableWithoutFeedback>
       )}
-      <Animated.View 
+      <Animated.View
         style={[
-          styles.headerSafeArea, 
+          styles.headerSafeArea,
           { paddingTop: insetsTop || 0 },
           isMenuOpen && { zIndex: 60, elevation: 60 }
-        ]} 
+        ]}
         pointerEvents="box-none"
       >
         <SafeAreaView pointerEvents="box-none">
@@ -76,8 +76,7 @@ export default function Header({ insetsTop }: HeaderProps) {
             ]}>
               <View style={styles.headerTopRow}>
                 <View style={styles.logoRow}>
-                  <View style={styles.logoDot} />
-                  <Text style={styles.logoText}>PLAVIO</Text>
+                  <Image source={require('../../assets/images/Logo.png')} style={styles.logoImage} resizeMode="contain" />
                 </View>
                 <TouchableOpacity
                   style={styles.menuButton}
@@ -133,25 +132,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 26,
+    paddingHorizontal: 16,
     height: 48,
   },
   logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
   },
-  logoDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#FACC15',
-  },
-  logoText: {
-    fontSize: 13,
-    fontWeight: '900',
-    letterSpacing: 2.6,
-    color: '#1F2937',
+  logoImage: {
+    width: 103,
+    height: 32,
   },
   menuButton: {
     width: 48,
