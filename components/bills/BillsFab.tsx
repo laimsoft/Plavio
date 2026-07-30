@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors } from '@/constants/colors';
 
 interface BillsFabProps {
   onPress?: () => void;
@@ -10,7 +9,7 @@ interface BillsFabProps {
 export default function BillsFab({ onPress }: BillsFabProps) {
   return (
     <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={onPress}>
-      <MaterialIcons name="add" size={24} color={colors.onPrimaryContainer} />
+      <MaterialIcons name="add" size={32} color="#ffffff" />
     </TouchableOpacity>
   );
 }
@@ -18,18 +17,19 @@ export default function BillsFab({ onPress }: BillsFabProps) {
 const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
-    right: 16,
+    right: 20,
     bottom: 110,
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: colors.primaryContainer,
+    marginBottom: 16,
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    backgroundColor: '#1DD59C',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowColor: '#1DD59C',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    elevation: 6,
   },
 });

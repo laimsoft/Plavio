@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors } from '@/constants/colors';
 
 type SummaryProps = {
   upcomingAmount: number;
@@ -12,37 +11,29 @@ type SummaryProps = {
 export default function BillsSummaryCards({ upcomingAmount, totalMonthly, currency }: SummaryProps) {
   return (
     <View style={styles.summaryGrid}>
-      <View style={styles.summaryCard}>
-        <View style={styles.summaryIconRow}>
-          <View style={styles.summaryIconCircle}>
-            <MaterialIcons
-              name="schedule"
-              size={16}
-              color={colors.onSecondaryContainer}
-            />
+      <View style={[styles.summaryCard, styles.upcomingCard]}>
+        <View style={styles.headerRow}>
+          <View style={[styles.iconCircle, styles.upcomingIconCircle]}>
+            <MaterialIcons name="calendar-today" size={16} color="#059669" />
           </View>
-          <Text style={styles.summaryLabel}>Upcoming Payments</Text>
+          <Text style={styles.label}>{'Upcoming\nPayments'}</Text>
         </View>
-        <View style={{ marginTop: 8 }}>
-          <Text style={styles.summaryValue}>{currency}{upcomingAmount.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</Text>
-          <Text style={styles.summarySubtitle}>Due in 7 days</Text>
+        <View style={styles.amountContainer}>
+          <Text style={styles.amountText}>{`${currency} ${upcomingAmount.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`}</Text>
+          <Text style={styles.subtitleUpcoming}>Due in 7 days</Text>
         </View>
       </View>
 
-      <View style={styles.summaryCard}>
-        <View style={styles.summaryIconRow}>
-          <View style={styles.summaryIconCircle}>
-            <MaterialIcons
-              name="payments"
-              size={16}
-              color={colors.onSecondaryContainer}
-            />
+      <View style={[styles.summaryCard, styles.monthlyCard]}>
+        <View style={styles.headerRow}>
+          <View style={[styles.iconCircle, styles.monthlyIconCircle]}>
+            <MaterialIcons name="account-balance-wallet" size={16} color="#2563EB" />
           </View>
-          <Text style={styles.summaryLabel}>Total Monthly Bills</Text>
+          <Text style={styles.label}>{'Total Monthly\nBills'}</Text>
         </View>
-        <View style={{ marginTop: 8 }}>
-          <Text style={styles.summaryValue}>{currency}{totalMonthly.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</Text>
-          <Text style={styles.summarySubtitle}>This Month</Text>
+        <View style={styles.amountContainer}>
+          <Text style={styles.amountText}>{`${currency} ${totalMonthly.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`}</Text>
+          <Text style={styles.subtitleMonthly}>This Month</Text>
         </View>
       </View>
     </View>
@@ -56,50 +47,58 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.outlineVariant,
+    borderRadius: 20,
     padding: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
+    justifyContent: 'space-between',
   },
-  summaryIconRow: {
+  upcomingCard: {
+    backgroundColor: '#F0FDF4',
+  },
+  monthlyCard: {
+    backgroundColor: '#F0F9FF',
+  },
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    marginBottom: 16,
   },
-  summaryIconCircle: {
+  iconCircle: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.secondaryContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  summaryLabel: {
-    flex: 1,
-    fontSize: 12,
+  upcomingIconCircle: {
+    backgroundColor: '#DCFCE7',
+  },
+  monthlyIconCircle: {
+    backgroundColor: '#DBEAFE',
+  },
+  label: {
+    fontSize: 13,
     lineHeight: 16,
-    letterSpacing: 0.5,
     fontWeight: '500',
-    color: colors.onSurfaceVariant,
+    color: '#333333',
+    flexShrink: 1,
   },
-  summaryValue: {
-    fontSize: 32,
-    lineHeight: 40,
-    letterSpacing: -0.4,
-    fontWeight: '700',
-    color: colors.onSurface,
+  amountContainer: {
+    gap: 4,
   },
-  summarySubtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.secondary,
-    marginTop: 2,
+  amountText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#111111',
+  },
+  subtitleUpcoming: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#059669',
+  },
+  subtitleMonthly: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#3B82F6',
   },
 });

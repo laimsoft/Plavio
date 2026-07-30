@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Calendar } from 'react-native-calendars';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useState } from 'react';
 import {
+  KeyboardAvoidingView,
   Modal,
-  View,
+  Platform,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   TouchableWithoutFeedback,
-  KeyboardAvoidingView,
-  Platform,
+  View,
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { colors } from '@/constants/colors';
 
 interface AddBillModalProps {
   visible: boolean;
@@ -39,6 +41,7 @@ export default function AddBillModal({ visible, onClose, onSave, initialData }: 
   const [status, setStatus] = useState('Pending');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -48,7 +51,7 @@ export default function AddBillModal({ visible, onClose, onSave, initialData }: 
         setDueDate(initialData.dueDate);
         setRepeatType(initialData.repeatType);
         setStatus(initialData.status);
-        
+
         if (PRESET_CATEGORIES.includes(initialData.category)) {
           setCategory(initialData.category);
           setIsAddingCategory(false);
@@ -89,140 +92,225 @@ export default function AddBillModal({ visible, onClose, onSave, initialData }: 
     onClose();
   };
 
+  const onDayPress = (day: any) => {
+    setDueDate(day.dateString);
+    setShowDatePicker(false);
+  };
+
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <>
+      <Modal
+        visible={visible}
+        transparent
+        animationType="slide"
+        onRequestClose={onClose}
+      >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.overlay}
       >
         <TouchableWithoutFeedback onPress={onClose}>
           <View style={StyleSheet.absoluteFill} />
         </TouchableWithoutFeedback>
-        
+
         <View style={styles.modalContainer}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{initialData ? 'Edit Bill' : 'Add New Bill'}</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <MaterialIcons name="close" size={24} color={colors.onSurfaceVariant} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.form}>
-            <Text style={styles.label}>Bill Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Electricity Bill"
-              placeholderTextColor={colors.onSurfaceVariant}
-              value={name}
-              onChangeText={setName}
-            />
-
-            <Text style={styles.label}>Category</Text>
-            <View style={styles.categoriesContainer}>
-              {PRESET_CATEGORIES.map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.categoryChip,
-                    category === cat && !isAddingCategory && styles.categoryChipActive,
-                  ]}
-                  onPress={() => {
-                    setCategory(cat);
-                    setIsAddingCategory(false);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.categoryChipText,
-                      category === cat && !isAddingCategory && styles.categoryChipTextActive,
-                    ]}
-                  >
-                    {cat}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-              <TouchableOpacity
-                style={[
-                  styles.categoryChip,
-                  isAddingCategory && styles.categoryChipActive,
-                ]}
-                onPress={() => setIsAddingCategory(true)}
-              >
-                <Text
-                  style={[
-                    styles.categoryChipText,
-                    isAddingCategory && styles.categoryChipTextActive,
-                  ]}
-                >
-                  + Add
-                </Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            style={{ flexShrink: 1 }}
+          >
+            <View style={styles.header}>
+              <Text style={styles.title}>{initialData ? 'Edit Bill' : 'Add New Bill'}</Text>
+              <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
+                <MaterialIcons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
 
-            {isAddingCategory && (
+            <View style={styles.form}>
+              <Text style={styles.label}>Bill Name</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Custom category"
-                placeholderTextColor={colors.onSurfaceVariant}
-                value={customCategory}
-                onChangeText={setCustomCategory}
+                placeholder="e.g. Electricity Bill"
+                placeholderTextColor="#9CA3AF"
+                value={name}
+                onChangeText={setName}
               />
-            )}
 
-            <Text style={styles.label}>Status</Text>
-            <View style={styles.categoriesContainer}>
-              {['Pending', 'Paid'].map((st) => (
-                <TouchableOpacity
-                  key={st}
-                  style={[
-                    styles.categoryChip,
-                    status === st && styles.categoryChipActive,
-                  ]}
-                  onPress={() => setStatus(st)}
-                >
-                  <Text
-                    style={[
-                      styles.categoryChipText,
-                      status === st && styles.categoryChipTextActive,
-                    ]}
+              <Text style={styles.label}>Category</Text>
+              <View style={styles.categoriesContainer}>
+                {PRESET_CATEGORIES.map((cat) => {
+                  const isActive = category === cat && !isAddingCategory;
+                  return isActive ? (
+                    <TouchableOpacity
+                      key={cat}
+                      activeOpacity={0.7}
+                      onPress={() => {
+                        setCategory(cat);
+                        setIsAddingCategory(false);
+                      }}
+                    >
+                      <LinearGradient
+                        colors={['#10B981', '#06B6D4']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.categoryChipActive}
+                      >
+                        <Text style={styles.categoryChipTextActive}>{cat}</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      key={cat}
+                      style={styles.categoryChip}
+                      onPress={() => {
+                        setCategory(cat);
+                        setIsAddingCategory(false);
+                      }}
+                    >
+                      <Text style={styles.categoryChipText}>{cat}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+                {isAddingCategory ? (
+                  <TouchableOpacity activeOpacity={0.7} onPress={() => setIsAddingCategory(true)}>
+                    <LinearGradient
+                      colors={['#10B981', '#06B6D4']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.categoryChipActive}
+                    >
+                      <Text style={styles.categoryChipTextActive}>+ Add</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.categoryChip}
+                    onPress={() => setIsAddingCategory(true)}
                   >
-                    {st === 'Pending' ? 'Unpaid' : 'Paid'}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Text style={styles.label}>Amount</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="0.00"
-                  placeholderTextColor={colors.onSurfaceVariant}
-                  keyboardType="decimal-pad"
-                  value={amount}
-                  onChangeText={setAmount}
-                />
-
-                <Text style={styles.label}>Due Date (YYYY-MM-DD)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={colors.onSurfaceVariant}
-                  value={dueDate}
-                  onChangeText={setDueDate}
-                />
-
-                <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                  <Text style={styles.saveButtonText}>Save Bill</Text>
-                </TouchableOpacity>
+                    <Text style={styles.categoryChipText}>+ Add</Text>
+                  </TouchableOpacity>
+                )}
               </View>
+
+              {isAddingCategory && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Custom category"
+                  placeholderTextColor="#9CA3AF"
+                  value={customCategory}
+                  onChangeText={setCustomCategory}
+                />
+              )}
+
+              <Text style={styles.label}>Status</Text>
+              <View style={styles.categoriesContainer}>
+                {['Pending', 'Paid'].map((st) => {
+                  const isActive = status === st;
+                  return isActive ? (
+                    <TouchableOpacity
+                      key={st}
+                      activeOpacity={0.7}
+                      onPress={() => setStatus(st)}
+                    >
+                      <LinearGradient
+                        colors={['#10B981', '#06B6D4']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.categoryChipActive}
+                      >
+                        <Text style={styles.categoryChipTextActive}>{st === 'Pending' ? 'Unpaid' : 'Paid'}</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      key={st}
+                      style={styles.categoryChip}
+                      onPress={() => setStatus(st)}
+                    >
+                      <Text style={styles.categoryChipText}>{st === 'Pending' ? 'Unpaid' : 'Paid'}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <Text style={styles.label}>Amount</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0.00"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="decimal-pad"
+                value={amount}
+                onChangeText={setAmount}
+              />
+
+              <Text style={styles.label}>Due Date</Text>
+              <TouchableOpacity style={styles.input} onPress={() => setShowDatePicker(true)}>
+                <Text style={{ color: dueDate ? '#1F2937' : '#9CA3AF', fontSize: 16 }}>
+                  {dueDate || 'Select Date'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity activeOpacity={0.7} onPress={handleSave}>
+                <LinearGradient
+                    colors={['#10B981', '#06B6D4']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.saveButton}
+                >
+                  <Text style={styles.saveButtonText}>Save Bill</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
         </View>
       </KeyboardAvoidingView>
-    </Modal>
+      </Modal>
+
+      <Modal
+        visible={showDatePicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDatePicker(false)}
+      >
+        <TouchableOpacity
+          style={styles.datePickerOverlay}
+          activeOpacity={1}
+          onPress={() => setShowDatePicker(false)}
+        >
+          <TouchableWithoutFeedback>
+            <View style={styles.datePickerPopup}>
+              <Calendar
+                current={dueDate || undefined}
+                onDayPress={onDayPress}
+                markedDates={{
+                  [dueDate]: { selected: true, selectedColor: '#10B981' }
+                }}
+                theme={{
+                  backgroundColor: '#ffffff',
+                  calendarBackground: '#ffffff',
+                  textSectionTitleColor: '#6B7280',
+                  selectedDayBackgroundColor: '#10B981',
+                  selectedDayTextColor: '#ffffff',
+                  todayTextColor: '#06B6D4',
+                  dayTextColor: '#1F2937',
+                  textDisabledColor: '#D1D5DB',
+                  dotColor: '#10B981',
+                  selectedDotColor: '#ffffff',
+                  arrowColor: '#10B981',
+                  monthTextColor: '#1F2937',
+                  textDayFontWeight: '500',
+                  textMonthFontWeight: 'bold',
+                  textDayHeaderFontWeight: '600',
+                  textDayFontSize: 14,
+                  textMonthFontSize: 16,
+                  textDayHeaderFontSize: 14
+                }}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        </TouchableOpacity>
+      </Modal>
+    </>
   );
 }
 
@@ -233,11 +321,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: colors.background,
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    flexShrink: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 10,
   },
   header: {
     flexDirection: 'row',
@@ -246,9 +340,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: colors.onSurface,
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F2937',
   },
   closeBtn: {
     padding: 4,
@@ -258,28 +352,49 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '500',
-    color: colors.onSurface,
+    fontWeight: '600',
+    color: '#6B7280',
     marginBottom: -8,
   },
   input: {
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: colors.onSurfaceVariant,
+    color: '#1F2937',
+  },
+  datePickerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  datePickerPopup: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    width: '100%',
+    overflow: 'hidden',
+    paddingBottom: 8,
   },
   saveButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 8,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   saveButtonText: {
-    color: colors.onPrimary,
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   categoriesContainer: {
     flexDirection: 'row',
@@ -287,21 +402,29 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryChip: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 999,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: colors.surfaceVariant,
-    borderWidth: 1,
-    borderColor: 'transparent',
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   categoryChipActive: {
-    backgroundColor: colors.primaryContainer,
-    borderColor: colors.primary,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   categoryChipText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.onSurfaceVariant,
+    color: '#374151',
   },
   categoryChipTextActive: {
     color: '#FFFFFF',
