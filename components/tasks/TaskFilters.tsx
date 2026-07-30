@@ -1,7 +1,8 @@
 import { colors } from '@/constants/colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { extra } from './constants';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { CategoryRow } from '@/database/queries';
 
@@ -14,7 +15,6 @@ type TaskFiltersProps = {
 export default function TaskFilters({ categories, activeCategoryId, onCategorySelect }: TaskFiltersProps) {
     return (
         <View style={styles.filterSection}>
-
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -22,16 +22,31 @@ export default function TaskFilters({ categories, activeCategoryId, onCategorySe
             >
                 {categories.map((category) => {
                     const active = category.id === activeCategoryId;
-                    return (
+                    return active ? (
                         <TouchableOpacity
                             key={category.id}
-                            style={[styles.categoryChip, active && styles.categoryChipActive]}
                             activeOpacity={0.7}
                             onPress={() => onCategorySelect(category.id)}
                         >
-                            <Text
-                                style={[styles.categoryLabel, active && styles.categoryLabelActive]}
+                            <LinearGradient
+                                colors={['#10B981', '#06B6D4']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.categoryChipActive}
                             >
+                                <Text style={styles.categoryLabelActive}>
+                                    {category.name}
+                                </Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity
+                            key={category.id}
+                            style={styles.categoryChip}
+                            activeOpacity={0.7}
+                            onPress={() => onCategorySelect(category.id)}
+                        >
+                            <Text style={styles.categoryLabel}>
                                 {category.name}
                             </Text>
                         </TouchableOpacity>
@@ -44,33 +59,44 @@ export default function TaskFilters({ categories, activeCategoryId, onCategorySe
 
 const styles = StyleSheet.create({
     filterSection: {
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        paddingBottom: 16,
-        backgroundColor: colors.background,
+        paddingHorizontal: 20,
+        paddingTop: 4,
+        paddingBottom: 8,
+        backgroundColor: '#F8F9FA',
     },
     categoryRow: {
         flexDirection: 'row',
-        gap: 8,
-        paddingBottom: 4,
+        gap: 12,
+        paddingBottom: 8,
     },
     categoryChip: {
-        backgroundColor: extra.surfaceContainerHigh,
+        backgroundColor: '#f3f4f6',
         borderRadius: 999,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingHorizontal: 24,
+        paddingVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     categoryChipActive: {
-        backgroundColor: colors.primary,
+        borderRadius: 999,
+        paddingHorizontal: 24,
+        paddingVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#10B981',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 4,
     },
     categoryLabel: {
         fontSize: 14,
-        lineHeight: 20,
-        letterSpacing: 0.1,
         fontWeight: '500',
-        color: extra.onSurface,
+        color: '#374151',
     },
     categoryLabelActive: {
-        color: extra.onPrimary,
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#FFFFFF',
     },
 });

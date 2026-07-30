@@ -3,6 +3,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { extra } from './constants';
 import { Task } from './types';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type TaskCardProps = {
     task: Task;
@@ -14,81 +15,76 @@ type TaskCardProps = {
 export default function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardProps) {
     return (
         <View style={[styles.taskCard, task.completed && styles.taskCardCompleted]}>
+            <LinearGradient
+                colors={['#10B981', '#06B6D4']}
+                style={styles.cardGradientBorder}
+            />
+            
             <TouchableOpacity
                 style={[styles.checkbox, task.completed && styles.checkboxChecked]}
                 activeOpacity={0.7}
                 onPress={() => onToggle(task.id)}
             >
                 {task.completed && (
-                    <MaterialIcons name="check" size={14} color={extra.onPrimary} />
+                    <MaterialIcons name="check" size={14} color="#FFFFFF" />
                 )}
             </TouchableOpacity>
 
-            <View style={styles.taskTextWrapper}>
-                <Text style={[styles.taskTitle, task.completed && styles.taskTitleCompleted]}>
-                    {task.title}
-                </Text>
+            <View style={styles.taskContentWrapper}>
+                <View style={styles.headerRow}>
+                    <Text style={[styles.taskTitle, task.completed && styles.taskTitleCompleted]}>
+                        {task.title}
+                    </Text>
+                    <View style={styles.actionsContainer}>
+                        {onEdit && (
+                            <TouchableOpacity onPress={() => onEdit(task)} style={styles.actionBtn}>
+                                <MaterialIcons name="edit" size={18} color="#6B7280" />
+                            </TouchableOpacity>
+                        )}
+                        {onDelete && (
+                            <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.actionBtn}>
+                                <MaterialIcons name="delete-outline" size={18} color="#F87171" />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </View>
 
-                {task.completed ? (
-                    <Text style={styles.completedLabel}>{task.completedLabel}</Text>
-                ) : (
-                    <View style={styles.metaRow}>
-                        <View style={styles.metaGroup}>
-                            <MaterialIcons
-                                name={task.dueIcon}
-                                size={16}
-                                color={task.dueColor ?? colors.onSurfaceVariant}
-                            />
-                            <Text style={[styles.metaText, task.dueColor && { color: task.dueColor }]}>
-                                {task.dueLabel}
-                            </Text>
-                        </View>
-
+                {!task.completed && (
+                    <View style={styles.badgesRow}>
+                        {task.categoryId && (
+                            <View style={styles.categoryBadge}>
+                                <MaterialIcons name="person" size={10} color="#10B981" />
+                                <Text style={styles.categoryBadgeText}>Personal</Text>
+                                <View style={styles.categoryDot} />
+                            </View>
+                        )}
                         {task.priority && (
-                            <>
-                                <View style={styles.dot} />
-                                <View
-                                    style={[
-                                        styles.priorityBadge,
-                                        {
-                                            backgroundColor:
-                                                task.priority === 'High' ? extra.errorContainer : extra.primaryFixed,
-                                        },
-                                    ]}
-                                >
-                                    <Text
-                                        style={[
-                                            styles.priorityText,
-                                            { color: task.priority === 'High' ? extra.error : colors.primary },
-                                        ]}
-                                    >
-                                        {task.priority}
-                                    </Text>
-                                </View>
-                            </>
+                            <View style={styles.priorityBadge}>
+                                <MaterialIcons name={task.priority === 'High' ? 'arrow-upward' : 'remove'} size={10} color={task.priority === 'High' ? '#EF4444' : '#F97316'} />
+                                <Text style={[styles.priorityBadgeText, { color: task.priority === 'High' ? '#EF4444' : '#F97316' }]}>{task.priority}</Text>
+                            </View>
                         )}
                     </View>
                 )}
-            </View>
-
-            <View style={styles.actionsContainer}>
-                {onEdit && (
-                    <TouchableOpacity onPress={() => onEdit(task)} style={styles.actionBtn}>
-                        <MaterialIcons name="edit" size={20} color={colors.onSurfaceVariant} />
-                    </TouchableOpacity>
-                )}
-                {onDelete && (
-                    <TouchableOpacity onPress={() => onDelete(task.id)} style={styles.actionBtn}>
-                        <MaterialIcons name="delete-outline" size={20} color={colors.error} />
-                    </TouchableOpacity>
-                )}
-                {task.trailingIcon && !onEdit && !onDelete && (
-                    <View style={styles.trailingIconCircle}>
-                        <MaterialIcons
-                            name={task.trailingIcon}
-                            size={18}
-                            color={colors.onSurfaceVariant}
-                        />
+                
+                {task.completed ? (
+                    <Text style={styles.completedLabel}>{task.completedLabel}</Text>
+                ) : (
+                    <View style={styles.footerRow}>
+                        <View style={styles.metaGroup}>
+                            <View style={styles.metaItem}>
+                                <MaterialIcons name="calendar-today" size={10} color="#9CA3AF" />
+                                <Text style={styles.metaText}>{task.dueLabel}</Text>
+                            </View>
+                            <View style={styles.metaDot} />
+                            <View style={styles.metaItem}>
+                                <MaterialIcons name="schedule" size={10} color="#9CA3AF" />
+                                <Text style={styles.metaText}>Time</Text>
+                            </View>
+                        </View>
+                        {task.trailingIcon && !onEdit && !onDelete && (
+                            <MaterialIcons name={task.trailingIcon} size={16} color="#9CA3AF" />
+                        )}
                     </View>
                 )}
             </View>
@@ -100,13 +96,12 @@ const styles = StyleSheet.create({
     taskCard: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        gap: 16,
-        backgroundColor: colors.surfaceContainerLowest,
-        borderWidth: 1,
-        borderColor: extra.surfaceContainerHigh,
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 16,
+        gap: 12,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 12,
+        position: 'relative',
+        overflow: 'hidden',
         shadowColor: '#000',
         shadowOpacity: 0.04,
         shadowRadius: 8,
@@ -116,79 +111,45 @@ const styles = StyleSheet.create({
     taskCardCompleted: {
         opacity: 0.7,
     },
+    cardGradientBorder: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 6,
+    },
     checkbox: {
         marginTop: 2,
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        borderWidth: 2,
-        borderColor: extra.outlineVariant,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 1.5,
+        borderColor: '#D1D5DB',
         alignItems: 'center',
         justifyContent: 'center',
     },
     checkboxChecked: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primary,
+        backgroundColor: '#10B981',
+        borderColor: '#10B981',
     },
-    taskTextWrapper: {
+    taskContentWrapper: {
         flex: 1,
+        flexDirection: 'column',
+        gap: 6,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
     },
     taskTitle: {
-        fontSize: 16,
-        lineHeight: 24,
-        fontWeight: '600',
-        color: extra.onSurface,
-        marginBottom: 4,
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#1F2937',
+        flex: 1,
     },
     taskTitleCompleted: {
         textDecorationLine: 'line-through',
-    },
-    completedLabel: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: colors.onSurfaceVariant,
-    },
-    metaRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        flexWrap: 'wrap',
-    },
-    metaGroup: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    metaText: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: colors.onSurfaceVariant,
-    },
-    dot: {
-        width: 4,
-        height: 4,
-        borderRadius: 2,
-        backgroundColor: extra.outlineVariant,
-        marginHorizontal: 2,
-    },
-    priorityBadge: {
-        borderRadius: 6,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-    },
-    priorityText: {
-        fontSize: 12,
-        lineHeight: 16,
-        letterSpacing: 0.5,
-        fontWeight: '500',
-    },
-    trailingIconCircle: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: extra.surfaceContainer,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     actionsContainer: {
         flexDirection: 'row',
@@ -196,6 +157,81 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     actionBtn: {
-        padding: 8,
+        padding: 0,
+    },
+    badgesRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    categoryBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        backgroundColor: '#ECFDF5',
+        borderWidth: 1,
+        borderColor: '#D1FAE5',
+        borderRadius: 999,
+    },
+    categoryBadgeText: {
+        fontSize: 10,
+        fontWeight: '500',
+        color: '#10B981',
+    },
+    categoryDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: '#10B981',
+        marginLeft: 2,
+    },
+    priorityBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        backgroundColor: '#FEF2F2',
+        borderWidth: 1,
+        borderColor: '#FEE2E2',
+        borderRadius: 999,
+    },
+    priorityBadgeText: {
+        fontSize: 10,
+        fontWeight: '500',
+    },
+    footerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 2,
+    },
+    metaGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    metaItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    metaText: {
+        fontSize: 10,
+        fontWeight: '500',
+        color: '#9CA3AF',
+    },
+    metaDot: {
+        width: 4,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: '#D1D5DB',
+    },
+    completedLabel: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: '#9CA3AF',
     },
 });

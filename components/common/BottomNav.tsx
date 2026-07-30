@@ -1,6 +1,8 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, TouchableOpacity, View, SafeAreaView, Text } from 'react-native';
-import { useRouter, usePathname } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type NavItem = {
   key: string;
@@ -42,22 +44,43 @@ export default function BottomNav({ insetsBottom }: BottomNavProps) {
                     }
                   }}
                 >
-                  <MaterialIcons
-                    name={item.icon}
-                    size={24}
-                    color={active ? "#60A5FA" : "#9CA3AF"}
-                  />
-                  <Text
-                    style={[
-                      styles.navLabel,
-                      {
-                        color: active ? "#60A5FA" : "#9CA3AF",
-                        fontWeight: active ? '700' : '500',
-                      },
-                    ]}
-                  >
-                    {item.label}
-                  </Text>
+                  {active ? (
+                    <MaskedView
+                      style={{ alignItems: 'center', justifyContent: 'center' }}
+                      maskElement={
+                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                          <MaterialIcons name={item.icon} size={24} color="#000" />
+                          <Text style={[styles.navLabel, { color: '#000', fontWeight: '700' }]}>
+                            {item.label}
+                          </Text>
+                        </View>
+                      }
+                    >
+                      <LinearGradient
+                        colors={['#10B981', '#06B6D4']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                      >
+                        <View style={{ opacity: 0, alignItems: 'center', justifyContent: 'center' }}>
+                          <MaterialIcons name={item.icon} size={24} color="#000" />
+                          <Text style={[styles.navLabel, { color: '#000', fontWeight: '700' }]}>
+                            {item.label}
+                          </Text>
+                        </View>
+                      </LinearGradient>
+                    </MaskedView>
+                  ) : (
+                    <>
+                      <MaterialIcons
+                        name={item.icon}
+                        size={24}
+                        color="#9CA3AF"
+                      />
+                      <Text style={[styles.navLabel, { color: "#9CA3AF", fontWeight: '500' }]}>
+                        {item.label}
+                      </Text>
+                    </>
+                  )}
                 </TouchableOpacity>
               );
             })}
