@@ -20,16 +20,6 @@ export default function SettingsScreen() {
 
   const sections: SettingsSection[] = [
     {
-      key: 'appearance',
-      rows: [
-        {
-          icon: 'dark-mode',
-          title: 'Dark Mode',
-          subtitle: 'Switch between light and dark themes',
-        },
-      ],
-    },
-    {
       key: 'notifications',
       rows: [
         {

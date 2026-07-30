@@ -1,6 +1,6 @@
+import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { usePathname, useRouter } from 'expo-router';
 
 type Props = {
   onClose: () => void;
@@ -45,16 +45,6 @@ export default function HamburgerMenu({ onClose }: Props) {
         <Text style={styles.menuItemText}>Rate Us</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.generateButton} activeOpacity={0.8}>
-        <Text style={styles.generateButtonText}>Generate Report</Text>
-      </TouchableOpacity>
-
-      <View style={styles.bottomRow}>
-        <View style={{ flex: 1 }} />
-        <TouchableOpacity style={styles.langButton} activeOpacity={0.7}>
-          <Text style={styles.langText}>EN</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
