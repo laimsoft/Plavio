@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal,
   StyleSheet,
@@ -7,6 +7,9 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
+  Animated,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
@@ -31,12 +34,59 @@ export function EditAccountModal({
   initialSavings,
 }: EditAccountModalProps) {
   const [view, setView] = useState<'menu' | 'budget' | 'savings' | 'withdraw-savings' | 'expense'>('menu');
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [showModal, setShowModal] = useState(visible);
+
+  const keyboardVisibleRef = useRef(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => { keyboardVisibleRef.current = true; });
+    const hideSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => { keyboardVisibleRef.current = false; });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (visible) {
-      setView('menu');
+      setShowModal(true);
+      Animated.parallel([
+        Animated.timing(fadeAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.spring(slideAnim, { toValue: 1, useNativeDriver: true, bounciness: 4 })
+      ]).start();
+    } else {
+      const animateClose = () => {
+        Animated.parallel([
+          Animated.timing(fadeAnim, { toValue: 0, duration: 250, useNativeDriver: true }),
+          Animated.timing(slideAnim, { toValue: 0, duration: 250, useNativeDriver: true })
+        ]).start(() => {
+          setShowModal(false);
+          setView('menu');
+        });
+      };
+
+      if (keyboardVisibleRef.current) {
+        Keyboard.dismiss();
+        setTimeout(animateClose, Platform.OS === 'ios' ? 250 : 150);
+      } else {
+        animateClose();
+      }
     }
-  }, [visible]);
+  }, [visible, slideAnim]);
+
+  const translateY = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [600, 0],
+  });
+
+  const backdropOpacity = fadeAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.5],
+  });
+
+  if (!showModal) return null;
 
   const renderContent = () => {
     switch (view) {
@@ -132,19 +182,25 @@ export function EditAccountModal({
 
   return (
     <Modal
-      visible={visible}
+      visible={showModal}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.overlay}
-      >
-        <View style={styles.modalContainer}>
-          {renderContent()}
-        </View>
-      </KeyboardAvoidingView>
+      <View style={styles.overlay}>
+        <Animated.View style={[StyleSheet.absoluteFillObject, { backgroundColor: '#000', opacity: backdropOpacity }]} />
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={StyleSheet.absoluteFillObject} />
+        </TouchableWithoutFeedback>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ width: '100%' }}
+        >
+          <Animated.View style={[styles.modalContainer, { transform: [{ translateY }] }]}>
+            {renderContent()}
+          </Animated.View>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
@@ -152,11 +208,10 @@ export function EditAccountModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: colors.background,
+    backgroundColor: '#FAFBFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,

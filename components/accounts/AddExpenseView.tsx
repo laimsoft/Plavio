@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../constants/colors';
 
 type AddExpenseViewProps = {
@@ -54,11 +55,18 @@ export function AddExpenseView({ onSave, onBack }: AddExpenseViewProps) {
       </View>
 
       <TouchableOpacity 
-        style={[styles.saveBtn, (!amount || !name.trim()) && styles.saveBtnDisabled]} 
+        style={[{ marginTop: 8 }, (!amount || !name.trim()) && styles.saveBtnDisabled]} 
         onPress={handleSave}
         disabled={!amount || !name.trim()}
       >
-        <Text style={styles.saveBtnText}>Add</Text>
+        <LinearGradient
+          colors={['#10B981', '#06B6D4']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.saveBtn}
+        >
+          <Text style={styles.saveBtnText}>Add</Text>
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -98,11 +106,9 @@ const styles = StyleSheet.create({
     color: colors.onSurface,
   },
   saveBtn: {
-    backgroundColor: colors.primary,
     borderRadius: 100,
     padding: 16,
     alignItems: 'center',
-    marginTop: 8,
   },
   saveBtnDisabled: {
     opacity: 0.5,

@@ -1,6 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '../../constants/colors';
 
 export type Transaction = {
   id: string;
@@ -11,141 +10,142 @@ export type Transaction = {
   amount: number;
 };
 
-export function RecentTransactions({ transactions, formatCurrency }: { transactions: Transaction[], formatCurrency: (value: number) => string }) {
+const getStyleForTag = (tag: string) => {
+  switch (tag) {
+    case 'Budget':
+      return { iconBg: '#f5f3ff', iconColor: '#a855f7', amountColor: '#059669', tagBg: '#f3e8ff', tagColor: '#9333ea' };
+    case 'Expense':
+      return { iconBg: '#fef2f2', iconColor: '#f87171', amountColor: '#ef4444', tagBg: '#fee2e2', tagColor: '#ef4444' };
+    case 'Transfer':
+      return { iconBg: '#f0fdfa', iconColor: '#14b8a6', amountColor: '#2563eb', tagBg: '#ccfbf1', tagColor: '#0d9488' };
+    case 'Saving':
+      return { iconBg: '#eff6ff', iconColor: '#3b82f6', amountColor: '#059669', tagBg: '#dbeafe', tagColor: '#2563eb' };
+    default:
+      return { iconBg: '#f3f4f6', iconColor: '#9ca3af', amountColor: '#374151', tagBg: '#f3f4f6', tagColor: '#374151' };
+  }
+};
+
+export function RecentTransactions({ transactions, formatCurrency, onSeeAllPress }: { transactions: Transaction[], formatCurrency: (value: number) => string, onSeeAllPress?: () => void }) {
   return (
     <View style={styles.transactionsSection}>
       <View style={styles.transactionsHeaderRow}>
         <Text style={styles.cardTitle}>Recent Transactions</Text>
-        <TouchableOpacity activeOpacity={0.7}>
+        <TouchableOpacity activeOpacity={0.7} onPress={onSeeAllPress}>
           <Text style={styles.seeAllText}>See All</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={{ gap: 8 }}>
-        {transactions.map((tx) => (
-          <View key={tx.id} style={styles.transactionCard}>
-            <View style={styles.transactionLeft}>
-              <View style={styles.transactionIconCircle}>
-                <MaterialIcons
-                  name={tx.icon}
-                  size={20}
-                  color={colors.onSurfaceVariant}
-                />
+      <View style={styles.listContainer}>
+        {transactions.map((tx, index) => {
+          const style = getStyleForTag(tx.tag);
+          const isLast = index === transactions.length - 1;
+          return (
+            <View key={tx.id} style={[styles.transactionCard, isLast && { borderBottomWidth: 0 }]}>
+              <View style={[styles.transactionLeft, { flex: 1 }]}>
+                <View style={[styles.transactionIconCircle, { backgroundColor: style.iconBg }]}>
+                  <MaterialIcons
+                    name={tx.icon}
+                    size={20}
+                    color={style.iconColor}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.transactionTitle} numberOfLines={1}>{tx.title}</Text>
+                  <Text style={styles.transactionDate}>{tx.date}</Text>
+                </View>
               </View>
-              <View>
-                <Text style={styles.transactionTitle}>{tx.title}</Text>
-                <View style={styles.transactionMetaRow}>
-                  <Text style={styles.transactionMetaText}>{tx.date}</Text>
-                  <View style={styles.dot} />
-                  <View style={styles.tagPill}>
-                    <Text style={styles.tagPillText}>{tx.tag}</Text>
-                  </View>
+              <View style={styles.transactionRight}>
+                <Text style={[styles.transactionAmount, { color: style.amountColor }]}>
+                  {tx.amount < 0 ? '-' : ''}{formatCurrency(Math.abs(tx.amount))}
+                </Text>
+                <View style={[styles.tagPill, { backgroundColor: style.tagBg }]}>
+                  <Text style={[styles.tagPillText, { color: style.tagColor }]}>{tx.tag}</Text>
                 </View>
               </View>
             </View>
-            <Text style={styles.transactionAmount}>
-              {formatCurrency(tx.amount)}
-            </Text>
-          </View>
-        ))}
+          );
+        })}
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  cardTitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-    color: colors.onSurface,
-  },
   transactionsSection: {
     gap: 16,
+    paddingBottom: 20,
   },
   transactionsHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    paddingHorizontal: 4,
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
   },
   seeAllText: {
     fontSize: 14,
-    lineHeight: 20,
-    letterSpacing: 0.1,
     fontWeight: '500',
-    color: colors.primary,
+    color: '#2563eb',
+  },
+  listContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+    overflow: 'hidden',
   },
   transactionCard: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.surfaceVariant,
-    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f9fafb',
   },
   transactionLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    marginRight: 12,
   },
   transactionIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surfaceContainer,
+    width: 48,
+    height: 48,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   transactionTitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '500',
-    color: colors.onSurface,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1f2937',
   },
-  transactionMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  transactionDate: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginTop: 4,
+  },
+  transactionRight: {
+    alignItems: 'flex-end',
     gap: 8,
-    marginTop: 2,
-  },
-  transactionMetaText: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
-    fontWeight: '500',
-    color: colors.onSurfaceVariant,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.surfaceVariant,
-  },
-  tagPill: {
-    backgroundColor: colors.secondaryContainer,
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  tagPillText: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
-    fontWeight: '500',
-    color: colors.onSecondaryContainer,
   },
   transactionAmount: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-    color: colors.error,
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  tagPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 999,
+  },
+  tagPillText: {
+    fontSize: 10,
+    fontWeight: '500',
   },
 });
