@@ -25,14 +25,16 @@ const getStyleForTag = (tag: string) => {
   }
 };
 
-export function RecentTransactions({ transactions, formatCurrency, onSeeAllPress }: { transactions: Transaction[], formatCurrency: (value: number) => string, onSeeAllPress?: () => void }) {
+export function RecentTransactions({ transactions, formatCurrency, onSeeAllPress, title = 'Recent Transactions', hideSeeAll = false }: { transactions: Transaction[], formatCurrency: (value: number) => string, onSeeAllPress?: () => void, title?: string, hideSeeAll?: boolean }) {
   return (
     <View style={styles.transactionsSection}>
       <View style={styles.transactionsHeaderRow}>
-        <Text style={styles.cardTitle}>Recent Transactions</Text>
-        <TouchableOpacity activeOpacity={0.7} onPress={onSeeAllPress}>
-          <Text style={styles.seeAllText}>See All</Text>
-        </TouchableOpacity>
+        <Text style={styles.cardTitle}>{title}</Text>
+        {!hideSeeAll && (
+          <TouchableOpacity activeOpacity={0.7} onPress={onSeeAllPress}>
+            <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.listContainer}>
@@ -41,7 +43,8 @@ export function RecentTransactions({ transactions, formatCurrency, onSeeAllPress
           const isLast = index === transactions.length - 1;
           return (
             <View key={tx.id} style={[styles.transactionCard, isLast && { borderBottomWidth: 0 }]}>
-              <View style={[styles.transactionLeft, { flex: 1 }]}>
+              <View style={styles.transactionLeft}>
+                {/* Left: Icon */}
                 <View style={[styles.transactionIconCircle, { backgroundColor: style.iconBg }]}>
                   <MaterialIcons
                     name={tx.icon}
@@ -49,7 +52,9 @@ export function RecentTransactions({ transactions, formatCurrency, onSeeAllPress
                     color={style.iconColor}
                   />
                 </View>
-                <View style={{ flex: 1 }}>
+
+                {/* Middle: Text */}
+                <View style={styles.transactionTextContainer}>
                   <Text style={styles.transactionTitle} numberOfLines={1}>{tx.title}</Text>
                   <Text style={styles.transactionDate}>{tx.date}</Text>
                 </View>
@@ -109,10 +114,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f9fafb',
   },
   transactionLeft: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginRight: 12,
+  },
+  transactionTextContainer: {
+    flex: 1,
+    marginLeft: 16,
+    marginRight: 16,
   },
   transactionIconCircle: {
     width: 48,

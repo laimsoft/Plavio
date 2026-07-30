@@ -1,8 +1,8 @@
 import MonthlySummaryCard from '@/components/transactions/MonthlySummaryCard';
-import RecentTransactions from '@/components/transactions/RecentTransactions';
+import { RecentTransactions, Transaction } from '@/components/accounts/RecentTransactions';
 import TransactionSearchBar from '@/components/transactions/TransactionSearchBar';
 import TransactionTabs from '@/components/transactions/TransactionTabs';
-import { Tab, Transaction } from '@/components/transactions/types';
+import { Tab } from '@/components/transactions/types';
 import { colors } from '@/constants/colors';
 import { AccountTransactionRow, getAccountTransactions } from '@/database/queries';
 import { initDatabase } from '@/database/schema';
@@ -18,16 +18,20 @@ import {
 } from 'react-native';
 
 const mapRowToTransaction = (row: AccountTransactionRow): Transaction => {
-    return {
-        id: String(row.id),
-        icon: 'receipt',
-        iconBg: colors.primaryContainer,
-        iconColor: colors.onPrimaryContainer,
-        title: row.transaction_name,
-        category: row.transaction_type,
-        date: row.transaction_date,
-        amount: row.amount,
-    };
+  let icon = 'receipt';
+  if (row.transaction_type === 'Budget') icon = 'assignment';
+  else if (row.transaction_type === 'Expense') icon = 'smartphone';
+  else if (row.transaction_type === 'Saving') icon = 'savings';
+  else if (row.transaction_type === 'Transfer') icon = 'swap-horiz';
+
+  return {
+    id: String(row.id),
+    icon: icon as any,
+    title: row.transaction_name,
+    date: row.transaction_date,
+    tag: row.transaction_type,
+    amount: row.transaction_type === 'Expense' ? -row.amount : row.amount,
+  };
 };
 
 export default function TransactionsScreen() {
@@ -145,9 +149,10 @@ export default function TransactionsScreen() {
                 />
 
                 <RecentTransactions
-                    title={`Recent ${activeTab}s`}
+                    title="All Transactions"
                     transactions={filteredTransactions}
                     formatCurrency={formatCurrency}
+                    hideSeeAll={true}
                 />
 
                 {/* Spacer so content clears the FAB / bottom nav */}

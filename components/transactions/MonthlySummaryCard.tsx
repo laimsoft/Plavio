@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '@/constants/colors';
 
 type Props = {
@@ -20,15 +21,15 @@ export default function MonthlySummaryCard({ title, amount, changePercent = 0, p
     return (
         <View style={styles.summaryCard}>
             <View style={styles.summaryHeaderRow}>
-                <View>
+                <View style={{ flex: 1 }}>
                     <Text style={styles.summaryLabel}>{title}</Text>
-                    <Text style={styles.summaryValue}>
+                    <Text 
+                        style={styles.summaryValue}
+                        adjustsFontSizeToFit={true}
+                        numberOfLines={1}
+                    >
                         {formatCurrency(amount)}
                     </Text>
-                </View>
-                <View style={styles.trendBadge}>
-                    <MaterialIcons name="trending-up" size={16} color={colors.onErrorContainer} />
-                    <Text style={styles.trendBadgeText}>+{changePercent}%</Text>
                 </View>
             </View>
 
@@ -41,7 +42,10 @@ export default function MonthlySummaryCard({ title, amount, changePercent = 0, p
                         </Text>
                     </View>
                     <View style={styles.progressTrack}>
-                        <View
+                        <LinearGradient
+                            colors={['#10B981', '#06B6D4']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
                             style={[styles.progressFill, { width: `${progress.percent}%` }]}
                         />
                     </View>
@@ -138,7 +142,6 @@ const styles = StyleSheet.create({
     progressFill: {
         height: '100%',
         borderRadius: 999,
-        backgroundColor: colors.primary,
     },
     summaryFooterRow: {
         flexDirection: 'row',
