@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { colors } from '../constants/colors';
 
@@ -173,6 +173,14 @@ export default function BillsScreen() {
         />
         <BillsSummaryCards upcomingAmount={upcomingAmount} totalMonthly={totalMonthly} currency={currency} />
 
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Bills</Text>
+          <View style={styles.sortDropdown}>
+            <Text style={styles.sortText}>Due Date</Text>
+            <MaterialIcons name="keyboard-arrow-down" size={20} color="#888" />
+          </View>
+        </View>
+
         <View style={{ gap: 16 }}>
           {filteredBills.map((bill) => (
             <BillCard 
@@ -245,6 +253,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#111',
+  },
+  sortDropdown: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  sortText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
   },
   content: {
     paddingHorizontal: 16,

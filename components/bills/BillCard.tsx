@@ -1,9 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { colors } from '@/constants/colors';
-import { Bill, STATUS_COLOR, STRIP_COLOR } from './types';
-import { useSettings } from '@/contexts/SettingsContext';
+import { Bill } from './types';
 
 type Props = {
   bill: Bill;
@@ -14,7 +12,7 @@ type Props = {
 };
 
 const formatCurrency = (value: number, currency: string) =>
-  `${currency}${value.toLocaleString('en-GB', {
+  `${currency} ${value.toLocaleString('en-GB', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -44,62 +42,69 @@ export default function BillCard({ bill, currency, onEdit, onDelete, onToggleSta
     }
   };
 
+  const statusColor = isPaid ? '#12D18E' : '#FF4267';
+  
+  // Format the date string from 2025-05-02 to May 2, 2025
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const displayDate = formatDate(bill.date);
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={handleCardPress}
-      style={[
-        styles.billCard,
-        isPaid && styles.billCardPaid,
-        isOverdue && styles.billCardOverdue,
-      ]}
+      style={styles.cardWrapper}
     >
-      <View style={[styles.billStrip, { backgroundColor: STRIP_COLOR[bill.status] }]} />
-      
-      <View style={styles.billContent}>
-        <View style={styles.billTopRow}>
-          <View style={styles.billLeft}>
-            <View style={[styles.billIconBox, bill.iconBg ? { backgroundColor: bill.iconBg } : null]}>
-              <MaterialIcons name={bill.icon} size={24} color={bill.iconColor || colors.onSurface} />
+      <View style={[styles.cardContainer, isPaid && styles.cardContainerPaid]}>
+        <View style={[styles.strip, { backgroundColor: statusColor }]} />
+        
+        <View style={styles.cardInner}>
+          <View style={styles.leftCol}>
+            <View style={[styles.iconBox, bill.iconBg ? { backgroundColor: bill.iconBg } : null]}>
+              <MaterialIcons name={bill.icon} size={28} color={bill.iconColor || '#444'} />
             </View>
-            <View style={{ justifyContent: 'center' }}>
-              <Text style={[styles.billTitle, isPaid && styles.billTitlePaid]} numberOfLines={1}>
-                {bill.title}
-              </Text>
+            
+            <View style={styles.middleCol}>
+              <Text style={styles.title} numberOfLines={1}>{bill.title}</Text>
+              
+              <View style={styles.statusRow}>
+                <View style={[styles.statusDot, { backgroundColor: statusColor }]} />
+                <Text style={[styles.statusText, { color: statusColor }]}>
+                  {isPaid ? 'Paid' : 'Unpaid'}
+                </Text>
+              </View>
+              
+              <View style={styles.dateRow}>
+                <MaterialIcons name="calendar-today" size={12} color="#888" />
+                <Text style={styles.dateText}>
+                  {`${isPaid ? 'Paid on' : 'Due on'} ${displayDate}`}
+                </Text>
+              </View>
             </View>
           </View>
           
-          <View style={styles.billRight}>
-            <Text style={styles.billAmount}>{formatCurrency(bill.amount, currency)}</Text>
-          </View>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.billBottomRow}>
-          <View style={styles.statusRow}>
-            <View style={[styles.statusDot, { backgroundColor: STATUS_COLOR[bill.status] }]} />
-            <Text
-              style={[
-                styles.billStatusText,
-                { color: isPaid ? STATUS_COLOR[bill.status] : 'red' },
-                !isPaid && { fontWeight: '700' },
-              ]}
-            >
-              {bill.statusText}
-            </Text>
-          </View>
-
-          <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.actionButton} onPress={() => onEdit && onEdit(bill.id)}>
-              <MaterialIcons name="edit" size={18} color={colors.onSurfaceVariant} />
-              <Text style={styles.actionText}>Edit</Text>
-            </TouchableOpacity>
+          <View style={styles.rightCol}>
+            <View style={styles.amountRow}>
+              <Text style={styles.amountText}>{formatCurrency(bill.amount, currency)}</Text>
+              <MaterialIcons name="chevron-right" size={20} color="#888" style={{marginLeft: 4}} />
+            </View>
             
-            <TouchableOpacity style={styles.actionButton} onPress={handleDelete}>
-              <MaterialIcons name="delete-outline" size={18} color={colors.error} />
-              <Text style={[styles.actionText, { color: colors.error }]}>Delete</Text>
-            </TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity style={styles.actionBtnEdit} onPress={() => onEdit && onEdit(bill.id)}>
+                <MaterialIcons name="edit" size={16} color="#12D18E" />
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.actionBtnDelete} onPress={handleDelete}>
+                <MaterialIcons name="delete-outline" size={16} color="#FF4267" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
@@ -108,88 +113,56 @@ export default function BillCard({ bill, currency, onEdit, onDelete, onToggleSta
 }
 
 const styles = StyleSheet.create({
-  billCard: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    overflow: 'hidden',
+  cardWrapper: {
     shadowColor: '#000',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.04,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  billCardPaid: {
-    opacity: 0.7,
-  },
-  billCardOverdue: {
-    borderColor: 'rgba(239, 68, 68, 0.4)',
-    borderWidth: 1.5,
-  },
-  billStrip: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 6,
-  },
-  billContent: {
-    paddingLeft: 22,
-    paddingRight: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  billTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  billLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    flex: 1,
-  },
-  billIconBox: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: colors.surfaceContainer,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(196, 197, 216, 0.3)',
-  },
-  billTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.onSurface,
+    elevation: 2,
     marginBottom: 4,
   },
-  billTitlePaid: {
-    textDecorationLine: 'line-through',
-    color: colors.outline,
+  cardContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    flexDirection: 'row',
   },
-  billRight: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
+  cardContainerPaid: {
+    opacity: 0.85,
   },
-  billAmount: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.onSurface,
+  strip: {
+    width: 5,
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.surfaceVariant,
-    marginBottom: 12,
-  },
-  billBottomRow: {
+  cardInner: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  leftCol: {
+    flexDirection: 'row',
+    flex: 1,
+    gap: 16,
+  },
+  iconBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#F5F5F5',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  middleCol: {
+    justifyContent: 'center',
+    flex: 1,
+    gap: 4,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#111',
   },
   statusRow: {
     flexDirection: 'row',
@@ -197,28 +170,57 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
-  billStatusText: {
-    fontSize: 13,
+  statusText: {
+    fontSize: 12,
     fontWeight: '600',
   },
-  actionsRow: {
+  dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 6,
   },
-  actionButton: {
+  dateText: {
+    fontSize: 12,
+    color: '#888',
+  },
+  rightCol: {
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  amountRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    padding: 6,
   },
-  actionText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.onSurfaceVariant,
+  amountText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#111',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  actionBtnEdit: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E8FAF4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionBtnDelete: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFEBF0',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
+

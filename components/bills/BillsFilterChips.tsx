@@ -1,6 +1,5 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { colors } from '@/constants/colors';
 import { Filter } from './types';
 
 type Props = {
@@ -37,25 +36,27 @@ export default function BillsFilterChips({ filters, activeFilter, onSelectFilter
 
 const styles = StyleSheet.create({
   filterRow: {
-    gap: 8,
+    gap: 12,
     paddingVertical: 4,
   },
   chip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 999,
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#EFEFEF',
   },
   chipActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#1DD59C',
+    borderColor: '#1DD59C',
   },
   chipText: {
     fontSize: 14,
-    lineHeight: 20,
     fontWeight: '500',
-    color: colors.onSurfaceVariant,
+    color: '#666666',
   },
   chipTextActive: {
-    color: colors.onPrimary,
+    color: '#ffffff',
   },
 });
