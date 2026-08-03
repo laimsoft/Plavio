@@ -1,7 +1,7 @@
 import { colors } from '@/constants/colors';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, Linking, Platform } from 'react-native';
 
 import { SettingsSectionCard } from '@/components/settings/SettingsSectionCard';
 import { SettingsTopBar } from '@/components/settings/SettingsTopBar';
@@ -32,6 +32,25 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleRateUs = () => {
+    const androidPackageName = 'com.plavio';
+    const playStoreUrl = `market://details?id=${androidPackageName}`;
+    const playStoreWebUrl = `https://play.google.com/store/apps/details?id=${androidPackageName}`;
+
+    if (Platform.OS === 'android') {
+      Linking.canOpenURL(playStoreUrl).then((supported) => {
+        if (supported) {
+          Linking.openURL(playStoreUrl);
+        } else {
+          Linking.openURL(playStoreWebUrl);
+        }
+      }).catch((err) => console.error('An error occurred', err));
+    } else {
+      // Fallback for non-Android platforms, opening a web URL
+      Linking.openURL(playStoreWebUrl).catch((err) => console.error('An error occurred', err));
+    }
+  };
+
   const sections: SettingsSection[] = [
     {
       key: 'regional',
@@ -53,6 +72,12 @@ export default function SettingsScreen() {
     {
       key: 'appInfo',
       rows: [
+        {
+          icon: 'star',
+          title: 'Rate Us',
+          subtitle: 'Rate Plavio on Google Play',
+          onPress: handleRateUs,
+        },
         {
           icon: 'shield',
           title: 'Privacy Policy',
