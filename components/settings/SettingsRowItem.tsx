@@ -20,16 +20,18 @@ export function SettingsRowItem({ row, isLast }: Props) {
       onPress={row.onPress}
     >
       <View style={styles.rowLeft}>
-        <MaterialIcons name={row.icon} size={24} color={colors.primary} />
+        <View style={styles.iconCircle}>
+          <MaterialIcons name={row.icon} size={20} color="#10b981" />
+        </View>
         <View style={styles.rowText}>
-          <Text style={styles.rowTitle}>{row.title}</Text>
+          <Text style={styles.rowTitle} numberOfLines={1}>{row.title}</Text>
           <Text style={styles.rowSubtitle}>{row.subtitle}</Text>
         </View>
       </View>
       <MaterialIcons
         name="chevron-right"
         size={22}
-        color={colors.outlineVariant}
+        color="#cbd5e1"
       />
     </TouchableOpacity>
   );
@@ -44,8 +46,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   rowDivider: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.surfaceVariant,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
   rowLeft: {
     flexDirection: 'row',
@@ -53,19 +55,25 @@ const styles = StyleSheet.create({
     gap: 16,
     flexShrink: 1,
   },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#ecfdf5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   rowText: {
     flexShrink: 1,
   },
   rowTitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '600',
-    color: colors.onSurface,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1e293b',
   },
   rowSubtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.onSurfaceVariant,
-    marginTop: 2,
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 4,
   },
 });

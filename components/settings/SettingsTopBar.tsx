@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.surfaceContainerLow,
+    backgroundColor: '#f8f9fc',
   },
   topBarTitle: {
     flex: 1,
@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 28,
     fontWeight: '700',
-    color: colors.primary,
+    color: '#1e293b',
   },
 });

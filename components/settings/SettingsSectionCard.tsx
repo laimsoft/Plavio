@@ -24,15 +24,13 @@ export function SettingsSectionCard({ section }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.surfaceVariant,
+    backgroundColor: '#ffffff',
+    borderRadius: 24,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    shadowOpacity: 0.05,
+    shadowRadius: 15,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
 });
