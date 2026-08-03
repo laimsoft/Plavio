@@ -31,13 +31,15 @@ export default function TodaysOverview() {
   // Actually the design shows 100% hardcoded or calculated. We will calculate it.
   const displayProgress = total === 0 ? 0 : progress;
 
+  const formattedDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
   return (
     <View style={styles.container}>
       <View style={styles.leftContent}>
         <Text style={styles.title}>Today's Overview</Text>
         <View style={styles.dateContainer}>
           <MaterialIcons name="calendar-today" size={14} color="#14b8a6" />
-          <Text style={styles.dateText}>May 2, 2025</Text>
+          <Text style={styles.dateText}>{formattedDate}</Text>
         </View>
       </View>
 

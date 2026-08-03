@@ -235,17 +235,17 @@ export default function CurrencyRegionBottomSheet({ visible, onClose }: Props) {
                 </View>
 
                 <View style={styles.searchContainer}>
-                  <MaterialIcons name="search" size={20} color={colors.outline} style={styles.searchIcon} />
+                  <MaterialIcons name="search" size={20} color="#94A3B8" style={styles.searchIcon} />
                   <TextInput
                     style={styles.searchInput}
                     placeholder="Search region or currency..."
-                    placeholderTextColor={colors.outline}
+                    placeholderTextColor="#94A3B8"
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                   />
                   {searchQuery.length > 0 && (
                     <TouchableOpacity onPress={() => setSearchQuery('')}>
-                      <MaterialIcons name="close" size={20} color={colors.outline} />
+                      <MaterialIcons name="close" size={20} color="#94A3B8" />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -266,7 +266,7 @@ export default function CurrencyRegionBottomSheet({ visible, onClose }: Props) {
                           {item.region} ({item.currency})
                         </Text>
                         {isSelected && (
-                          <MaterialIcons name="check" size={20} color={colors.primary} />
+                          <MaterialIcons name="check" size={20} color="#10B981" />
                         )}
                       </TouchableOpacity>
                     );
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   sheetContainer: {
-    backgroundColor: colors.surfaceContainerLowest,
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   dragHandle: {
     width: 40,
     height: 4,
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: '#E2E8F0',
     borderRadius: 2,
     alignSelf: 'center',
     marginBottom: 16,
@@ -323,13 +323,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: colors.onSurface,
+    color: '#1E293B',
     marginBottom: 20,
     textAlign: 'center',
   },
   previewContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: '#F8FAFC',
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
@@ -340,29 +340,34 @@ const styles = StyleSheet.create({
   },
   previewDivider: {
     width: 1,
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: '#E2E8F0',
     marginHorizontal: 16,
   },
   previewLabel: {
     fontSize: 12,
-    color: colors.onSurfaceVariant,
+    color: '#64748B',
     marginBottom: 4,
   },
   previewValue: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.primary,
+    color: '#10B981',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceContainerLowest,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderColor: '#E8F5F5',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 48,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   searchIcon: {
     marginRight: 8,
@@ -370,7 +375,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: colors.onSurface,
+    color: '#1E293B',
   },
   list: {
     flex: 1,
@@ -385,15 +390,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   rowSelected: {
-    backgroundColor: colors.primaryContainer,
+    backgroundColor: '#ECFDF5',
   },
   rowText: {
     fontSize: 16,
-    color: colors.onSurface,
+    color: '#1E293B',
   },
   rowTextSelected: {
     fontWeight: '600',
-    color: colors.onPrimaryContainer,
+    color: '#065F46',
   },
   actions: {
     flexDirection: 'row',
@@ -408,22 +413,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButton: {
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: '#F1F5F9',
   },
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.onSurfaceVariant,
+    color: '#64748B',
   },
   saveButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#10B981',
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   saveButtonDisabled: {
-    backgroundColor: colors.surfaceVariant,
+    backgroundColor: '#E2E8F0',
+    shadowOpacity: 0,
+    elevation: 0,
   },
   saveButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.onPrimary,
+    color: '#FFFFFF',
   },
 });

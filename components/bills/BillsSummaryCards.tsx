@@ -1,14 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSettings } from '../../contexts/SettingsContext';
 
 type SummaryProps = {
   upcomingAmount: number;
   totalMonthly: number;
-  currency: string;
 };
 
-export default function BillsSummaryCards({ upcomingAmount, totalMonthly, currency }: SummaryProps) {
+export default function BillsSummaryCards({ upcomingAmount, totalMonthly }: SummaryProps) {
+  const { formatCurrency } = useSettings();
   return (
     <View style={styles.summaryGrid}>
       <View style={[styles.summaryCard, styles.upcomingCard]}>
@@ -19,7 +20,7 @@ export default function BillsSummaryCards({ upcomingAmount, totalMonthly, curren
           <Text style={styles.label}>{'Upcoming\nPayments'}</Text>
         </View>
         <View style={styles.amountContainer}>
-          <Text style={styles.amountText}>{`${currency} ${upcomingAmount.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`}</Text>
+          <Text style={styles.amountText}>{formatCurrency(upcomingAmount)}</Text>
           <Text style={styles.subtitleUpcoming}>Due in 7 days</Text>
         </View>
       </View>
@@ -32,7 +33,7 @@ export default function BillsSummaryCards({ upcomingAmount, totalMonthly, curren
           <Text style={styles.label}>{'Total Monthly\nBills'}</Text>
         </View>
         <View style={styles.amountContainer}>
-          <Text style={styles.amountText}>{`${currency} ${totalMonthly.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`}</Text>
+          <Text style={styles.amountText}>{formatCurrency(totalMonthly)}</Text>
           <Text style={styles.subtitleMonthly}>This Month</Text>
         </View>
       </View>

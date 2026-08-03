@@ -12,21 +12,21 @@ type TaskCardProps = {
 
 export default function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardProps) {
     return (
-        <View style={[styles.taskCard, task.completed && styles.taskCardCompleted]}>
+        <TouchableOpacity 
+            style={[styles.taskCard, task.completed && styles.taskCardCompleted]}
+            activeOpacity={0.8}
+            onPress={() => onToggle(task.id)}
+        >
             <LinearGradient
                 colors={['#10B981', '#06B6D4']}
                 style={styles.cardGradientBorder}
             />
 
-            <TouchableOpacity
-                style={[styles.checkbox, task.completed && styles.checkboxChecked]}
-                activeOpacity={0.7}
-                onPress={() => onToggle(task.id)}
-            >
+            <View style={[styles.checkbox, task.completed && styles.checkboxChecked]}>
                 {task.completed && (
                     <MaterialIcons name="check" size={14} color="#FFFFFF" />
                 )}
-            </TouchableOpacity>
+            </View>
 
             <View style={styles.taskContentWrapper}>
                 <View style={styles.headerRow}>
@@ -70,15 +70,6 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardP
                 ) : (
                     <View style={styles.footerRow}>
                         <View style={styles.metaGroup}>
-                            <View style={styles.metaItem}>
-                                <MaterialIcons name="calendar-today" size={10} color="#9CA3AF" />
-                                <Text style={styles.metaText}>{task.dueLabel}</Text>
-                            </View>
-                            <View style={styles.metaDot} />
-                            <View style={styles.metaItem}>
-                                <MaterialIcons name="schedule" size={10} color="#9CA3AF" />
-                                <Text style={styles.metaText}>Time</Text>
-                            </View>
                         </View>
                         {task.trailingIcon && !onEdit && !onDelete && (
                             <MaterialIcons name={task.trailingIcon} size={16} color="#9CA3AF" />
@@ -86,7 +77,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardP
                     </View>
                 )}
             </View>
-        </View>
+        </TouchableOpacity>
     );
 }
 

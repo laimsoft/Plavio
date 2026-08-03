@@ -4,9 +4,11 @@ import { colors } from '../../constants/colors';
 import { useCallback, useState } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { getTasks, getAccountTransactions } from '../../database/queries';
+import { useSettings } from '../../contexts/SettingsContext';
 
 export default function SummaryGrid() {
   const router = useRouter();
+  const { formatCurrency } = useSettings();
   const [totalTasks, setTotalTasks] = useState(0);
   const [pendingTasks, setPendingTasks] = useState(0);
   const [expenses, setExpenses] = useState(0);
@@ -54,7 +56,7 @@ export default function SummaryGrid() {
           <View style={styles.headerText}>
             <Text style={styles.label}>Budget Remaining</Text>
             <Text style={[styles.value, { color: '#4f46e5', fontSize: 14 }]}>
-              PKR {remaining.toFixed(2)}
+              {formatCurrency(remaining)}
             </Text>
           </View>
         </View>
@@ -75,7 +77,7 @@ export default function SummaryGrid() {
           <View style={styles.headerText}>
             <Text style={styles.label}>Total Expenses</Text>
             <Text style={[styles.value, { color: '#ef4444', fontSize: 14 }]}>
-              PKR {expenses.toFixed(2)}
+              {formatCurrency(expenses)}
             </Text>
           </View>
         </View>

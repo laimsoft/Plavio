@@ -9,8 +9,9 @@ import BillsSummaryCards from '@/components/bills/BillsSummaryCards';
 import BillCard from '@/components/bills/BillCard';
 import BillsFab from '@/components/bills/BillsFab';
 import AddBillModal from '@/components/bills/AddBillModal';
-import { getBills, insertBill, updateBill, deleteBill, updateBillStatus, BillRow, getAccount } from '@/database/queries';
+import { getBills, insertBill, updateBill, deleteBill, updateBillStatus, BillRow } from '@/database/queries';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useSettings } from '@/contexts/SettingsContext';
 
 const getBillIconInfo = (name: string, category: string): { icon: keyof typeof MaterialIcons.glyphMap; bg: string; color: string } => {
   const lowerName = name.toLowerCase();
@@ -55,16 +56,12 @@ export default function BillsScreen() {
   const [dbBills, setDbBills] = useState<BillRow[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingBillId, setEditingBillId] = useState<string | null>(null);
-  const [currency, setCurrency] = useState('£');
+  const { currency } = useSettings();
 
   const fetchBills = async () => {
     try {
       const data = await getBills();
       setDbBills(data);
-      const account = await getAccount();
-      if (account && account.currency) {
-        setCurrency(account.currency);
-      }
     } catch (e) {
       console.error('Failed to fetch bills', e);
     }
@@ -171,7 +168,7 @@ export default function BillsScreen() {
           activeFilter={activeFilter}
           onSelectFilter={setActiveFilter}
         />
-        <BillsSummaryCards upcomingAmount={upcomingAmount} totalMonthly={totalMonthly} currency={currency} />
+        <BillsSummaryCards upcomingAmount={upcomingAmount} totalMonthly={totalMonthly} />
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Bills</Text>
@@ -185,8 +182,7 @@ export default function BillsScreen() {
           {filteredBills.map((bill) => (
             <BillCard 
               key={bill.id} 
-              bill={bill} 
-              currency={currency}
+              bill={bill}
               onEdit={(id) => {
                 setEditingBillId(id);
                 setModalVisible(true);

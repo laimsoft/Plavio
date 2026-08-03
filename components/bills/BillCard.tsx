@@ -2,22 +2,17 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Bill } from './types';
+import { useSettings } from '../../contexts/SettingsContext';
 
 type Props = {
   bill: Bill;
-  currency: string;
   onEdit?: (billId: string) => void;
   onDelete?: (billId: string) => void;
   onToggleStatus?: (billId: string, newStatus: string) => void;
 };
 
-const formatCurrency = (value: number, currency: string) =>
-  `${currency} ${value.toLocaleString('en-GB', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-
-export default function BillCard({ bill, currency, onEdit, onDelete, onToggleStatus }: Props) {
+export default function BillCard({ bill, onEdit, onDelete, onToggleStatus }: Props) {
+  const { formatCurrency } = useSettings();
   const isPaid = bill.status === 'paid';
   const isOverdue = bill.status === 'overdue';
 
@@ -92,7 +87,7 @@ export default function BillCard({ bill, currency, onEdit, onDelete, onToggleSta
           
           <View style={styles.rightCol}>
             <View style={styles.amountRow}>
-              <Text style={styles.amountText}>{formatCurrency(bill.amount, currency)}</Text>
+              <Text style={styles.amountText}>{formatCurrency(bill.amount)}</Text>
               <MaterialIcons name="chevron-right" size={20} color="#888" style={{marginLeft: 4}} />
             </View>
             

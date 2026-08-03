@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export type StatCardProps = {
   icon: keyof typeof MaterialIcons.glyphMap | string;
@@ -15,7 +15,7 @@ export function StatCard({ icon, iconBg, iconColor, label, value, valueColor, on
   const Container = onPress ? TouchableOpacity : (View as any);
 
   return (
-    <Container 
+    <Container
       style={styles.statCard}
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
@@ -29,9 +29,11 @@ export function StatCard({ icon, iconBg, iconColor, label, value, valueColor, on
           {value}
         </Text>
       </View>
-      <View style={styles.chevronContainer}>
-        <MaterialIcons name="chevron-right" size={16} color="#9ca3af" />
-      </View>
+      {onPress && (
+        <View style={styles.chevronContainer}>
+          <MaterialIcons name="chevron-right" size={16} color="#9ca3af" />
+        </View>
+      )}
     </Container>
   );
 }
