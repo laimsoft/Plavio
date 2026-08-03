@@ -1,25 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { colors } from '../../constants/colors';
 import { useCallback, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
-import { getTasks, getAccountTransactions, getAccount } from '../../database/queries';
-
-type SummaryCard = {
-  key: string;
-  icon: keyof typeof MaterialIcons.glyphMap;
-  iconBg: string;
-  iconColor: string;
-  label: string;
-  labelColor?: string;
-  value: string;
-  valueColor?: string;
-  caption: string;
-  captionColor?: string;
-  primaryBg?: boolean;
-};
+import { useFocusEffect, useRouter } from 'expo-router';
+import { getTasks, getAccountTransactions } from '../../database/queries';
 
 export default function SummaryGrid() {
+  const router = useRouter();
   const [totalTasks, setTotalTasks] = useState(0);
   const [pendingTasks, setPendingTasks] = useState(0);
   const [expenses, setExpenses] = useState(0);
@@ -56,72 +43,87 @@ export default function SummaryGrid() {
     }, [])
   );
 
-  const summaryCards: SummaryCard[] = [
-    {
-      key: 'total_tasks',
-      icon: 'format-list-numbered',
-      iconBg: colors.primaryContainer,
-      iconColor: colors.onPrimaryContainer,
-      label: 'All Time',
-      value: totalTasks.toString(),
-      caption: 'Total Tasks',
-    },
-    {
-      key: 'tasks',
-      icon: 'checklist',
-      iconBg: colors.tertiaryContainer,
-      iconColor: colors.onTertiaryContainer,
-      label: 'To Do',
-      value: pendingTasks.toString(),
-      caption: 'Pending Tasks',
-    },
-    {
-      key: 'expenses',
-      icon: 'payments',
-      iconBg: colors.errorContainer,
-      iconColor: colors.onErrorContainer,
-      label: 'Total',
-      value: `$${expenses.toFixed(2)}`,
-      caption: 'Expenses',
-    },
-    {
-      key: 'budget',
-      icon: 'account-balance-wallet',
-      iconBg: colors.secondaryContainer,
-      iconColor: colors.onSecondaryContainer,
-      label: 'Budget',
-      value: `$${remaining.toFixed(2)}`,
-      caption: 'Remaining',
-    },
-  ];
-
   return (
     <View style={styles.grid}>
-      {summaryCards.map((card) => (
-        <View
-          key={card.key}
-          style={[styles.card, card.primaryBg && styles.cardPrimary]}
-        >
-          <View style={styles.cardTopRow}>
-            <View style={[styles.cardIconCircle, { backgroundColor: card.iconBg }]}>
-              <MaterialIcons name={card.icon} size={16} color={card.iconColor} />
-            </View>
-            <Text style={[styles.cardLabel, card.labelColor && { color: card.labelColor }]}>
-              {card.label}
-            </Text>
+      {/* Stat Card 1 - Budget Remaining */}
+      <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => router.navigate('/accounts')}>
+        <View style={styles.cardHeader}>
+          <View style={[styles.iconContainer, { backgroundColor: '#e0e7ff' }]}>
+            <MaterialIcons name="account-balance-wallet" size={20} color="#6366f1" />
           </View>
-          <View>
-            <Text style={[styles.cardValue, card.valueColor && { color: card.valueColor }]}>
-              {card.value}
-            </Text>
-            <Text
-              style={[styles.cardCaption, card.captionColor && { color: card.captionColor }]}
-            >
-              {card.caption}
+          <View style={styles.headerText}>
+            <Text style={styles.label}>Budget Remaining</Text>
+            <Text style={[styles.value, { color: '#4f46e5', fontSize: 14 }]}>
+              PKR {remaining.toFixed(2)}
             </Text>
           </View>
         </View>
-      ))}
+        <View style={styles.cardFooter}>
+          <Text style={styles.caption}>From Budget</Text>
+          <View style={styles.detailButton}>
+            <MaterialIcons name="chevron-right" size={14} color="#94a3b8" />
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Stat Card 2 - Total Expenses */}
+      <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => router.navigate('/accounts')}>
+        <View style={styles.cardHeader}>
+          <View style={[styles.iconContainer, { backgroundColor: '#fee2e2' }]}>
+            <MaterialIcons name="credit-card" size={20} color="#ef4444" />
+          </View>
+          <View style={styles.headerText}>
+            <Text style={styles.label}>Total Expenses</Text>
+            <Text style={[styles.value, { color: '#ef4444', fontSize: 14 }]}>
+              PKR {expenses.toFixed(2)}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.cardFooter}>
+          <Text style={styles.caption}>This Month</Text>
+          <View style={[styles.detailButton, { borderColor: '#fca5a5', backgroundColor: '#fef2f2' }]}>
+            <MaterialIcons name="chevron-right" size={14} color="#ef4444" />
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Stat Card 3 - All Time Tasks */}
+      <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => router.navigate('/tasks')}>
+        <View style={styles.cardHeader}>
+          <View style={[styles.iconContainer, { backgroundColor: '#eff6ff' }]}>
+            <MaterialIcons name="format-list-bulleted" size={20} color="#3b82f6" />
+          </View>
+          <View style={styles.headerText}>
+            <Text style={styles.label}>All Time Tasks</Text>
+            <Text style={styles.value}>{totalTasks}</Text>
+          </View>
+        </View>
+        <View style={styles.cardFooter}>
+          <Text style={styles.caption}>Total Tasks</Text>
+          <View style={styles.detailButton}>
+            <MaterialIcons name="chevron-right" size={14} color="#94a3b8" />
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* Stat Card 4 - To Do */}
+      <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={() => router.navigate('/tasks')}>
+        <View style={styles.cardHeader}>
+          <View style={[styles.iconContainer, { backgroundColor: '#ffedd5' }]}>
+            <MaterialIcons name="assignment" size={20} color="#f97316" />
+          </View>
+          <View style={styles.headerText}>
+            <Text style={styles.label}>To Do</Text>
+            <Text style={styles.value}>{pendingTasks}</Text>
+          </View>
+        </View>
+        <View style={styles.cardFooter}>
+          <Text style={styles.caption}>Pending Tasks</Text>
+          <View style={styles.detailButton}>
+            <MaterialIcons name="chevron-right" size={14} color="#94a3b8" />
+          </View>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -131,62 +133,66 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 24,
   },
   card: {
-    width: '48.5%',
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.surfaceVariant,
+    width: '48%',
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    gap: 8,
     shadowColor: '#000',
-    shadowOpacity: 0.02,
-    shadowRadius: 12,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
-  cardPrimary: {
-    backgroundColor: colors.primary,
-    borderWidth: 0,
-    shadowColor: colors.primary,
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  cardTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    elevation: 2,
     justifyContent: 'space-between',
   },
-  cardIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 8,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  cardLabel: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
-    fontWeight: '500',
-    color: colors.onSurfaceVariant,
+  headerText: {
+    flex: 1,
   },
-  cardValue: {
-    fontSize: 20,
-    lineHeight: 28,
-    fontWeight: '600',
-    color: colors.onSurface,
-  },
-  cardCaption: {
+  label: {
     fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.5,
     fontWeight: '500',
-    color: colors.onSurfaceVariant,
+    color: '#64748b',
+    marginBottom: 2,
+  },
+  value: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginTop: 8,
+  },
+  caption: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748b',
+  },
+  detailButton: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

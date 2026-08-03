@@ -25,6 +25,7 @@ export default function FocusSection() {
 
       pendingTasks.sort((a, b) => priorityWeight(b.priority) - priorityWeight(a.priority));
 
+      // Show exactly 3 items as requested
       setFocusItems(pendingTasks.slice(0, 3));
     } catch (error) {
       console.error(error);
@@ -37,14 +38,6 @@ export default function FocusSection() {
     }, [])
   );
 
-  const getPriorityColor = (priority: string | null) => {
-    if (!priority) return colors.primary;
-    const lower = priority.toLowerCase();
-    if (lower === 'high') return colors.error;
-    if (lower === 'medium') return colors.secondary;
-    return colors.primary;
-  };
-
   const getPriorityBg = (priority: string | null) => {
     if (!priority) return colors.primaryContainer;
     const lower = priority.toLowerCase();
@@ -55,7 +48,13 @@ export default function FocusSection() {
 
   return (
     <View style={styles.focusSection}>
-      <Text style={styles.sectionTitle}>Upcoming Focus</Text>
+      <View style={styles.header}>
+        <Text style={styles.sectionTitle}>Upcoming Focus</Text>
+        <TouchableOpacity onPress={() => router.navigate('/tasks')}>
+          <Text style={styles.viewAll}>View All</Text>
+        </TouchableOpacity>
+      </View>
+
       {focusItems.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>No tasks yet.</Text>
@@ -66,7 +65,7 @@ export default function FocusSection() {
             key={item.id.toString()}
             style={styles.focusRow}
             activeOpacity={0.7}
-            onPress={() => router.push('/tasks')} // navigate to tasks if possible, or just keep as is
+            onPress={() => router.navigate('/tasks')}
           >
             <View style={[styles.focusIconCircle, { backgroundColor: getPriorityBg(item.priority) }]}>
               <MaterialIcons
@@ -76,7 +75,7 @@ export default function FocusSection() {
               />
             </View>
             <View style={styles.focusTextWrapper}>
-              <Text style={styles.focusTitle}>{item.title}</Text>
+              <Text style={styles.focusTitle} numberOfLines={1}>{item.title}</Text>
               <Text
                 style={[
                   styles.focusSubtitle,
@@ -98,12 +97,22 @@ const styles = StyleSheet.create({
   focusSection: {
     gap: 16,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   sectionTitle: {
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '600',
     color: colors.onSurface,
-    marginBottom: 4,
+  },
+  viewAll: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
   },
   focusRow: {
     flexDirection: 'row',
