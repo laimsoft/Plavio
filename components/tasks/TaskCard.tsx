@@ -1,9 +1,7 @@
-import { colors } from '@/constants/colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { extra } from './constants';
-import { Task } from './types';
 import { LinearGradient } from 'expo-linear-gradient';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Task } from './types';
 
 type TaskCardProps = {
     task: Task;
@@ -19,7 +17,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardP
                 colors={['#10B981', '#06B6D4']}
                 style={styles.cardGradientBorder}
             />
-            
+
             <TouchableOpacity
                 style={[styles.checkbox, task.completed && styles.checkboxChecked]}
                 activeOpacity={0.7}
@@ -66,7 +64,7 @@ export default function TaskCard({ task, onToggle, onEdit, onDelete }: TaskCardP
                         )}
                     </View>
                 )}
-                
+
                 {task.completed ? (
                     <Text style={styles.completedLabel}>{task.completedLabel}</Text>
                 ) : (

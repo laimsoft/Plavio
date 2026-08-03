@@ -1,22 +1,20 @@
 import GroceryFab from '@/components/groceries/GroceryFab';
 import GroceryHeader from '@/components/groceries/GroceryHeader';
 import GroceryItemCard, { GroceryItemType } from '@/components/groceries/GroceryItemCard';
-import GrocerySearchBar from '@/components/groceries/GrocerySearchBar';
-import { colors } from '@/constants/colors';
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { FlatList, StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
-import { useFocusEffect } from 'expo-router';
-import { getGroceryItems, toggleGroceryItemPurchased, addGroceryItem, clearGroceryItems } from '@/database/queries';
 import GroceryInlineCreateCard from '@/components/groceries/GroceryInlineCreateCard';
-import { initDatabase } from '@/database/schema';
+import React, { useMemo, useState, useCallback } from 'react';
+import { FlatList, StyleSheet, View, Text, TouchableOpacity, Alert, Image } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { getGroceryItems, toggleGroceryItemPurchased, addGroceryItem, clearGroceryItems, deleteGroceryItem } from '@/database/queries';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 
 export default function GroceriesScreen() {
     const [items, setItems] = useState<GroceryItemType[]>([]);
     const [search, setSearch] = useState('');
-    
     const [isCreatingInline, setIsCreatingInline] = useState(false);
 
-    const listId = 1; // Default list ID
+    const listId = 1;
 
     const loadItems = async () => {
         try {
@@ -51,17 +49,16 @@ export default function GroceriesScreen() {
         const itemToToggle = items.find((i) => i.id === id);
         if (!itemToToggle) return;
 
-        // Optimistic UI update
         setItems((prev) =>
             prev.map((item) => (item.id === id ? { ...item, checked: !item.checked } : item))
         );
 
         try {
             await toggleGroceryItemPurchased(Number(id), itemToToggle.checked ? 1 : 0);
-            await loadItems(); // Refresh to ensure correct sorting and DB state
+            await loadItems();
         } catch (error) {
             console.error('Failed to toggle item:', error);
-            await loadItems(); // Revert on failure
+            await loadItems();
         }
     };
 
@@ -105,14 +102,77 @@ export default function GroceriesScreen() {
         );
     };
 
-    const renderHeader = () => {
-        if (!isCreatingInline) return null;
+    const renderListHeader = () => {
         return (
-            <View style={{ marginBottom: 8 }}>
-                <GroceryInlineCreateCard 
-                    onSave={handleSaveInline} 
-                    onCancel={() => setIsCreatingInline(false)} 
-                />
+            <View style={styles.headerContainer}>
+                <LinearGradient
+                    colors={['#F0FAFA', '#E4F6F7']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.heroCard}
+                >
+                    {/* Left: Image */}
+                    <View style={styles.heroImageContainer}>
+                        <Image
+                            source={require('@/assets/images/groceries.png')}
+                            style={styles.heroImage}
+                            resizeMode="contain"
+                        />
+                    </View>
+
+                    {/* Middle: Text Content */}
+                    <View style={styles.heroTextContainer}>
+                        <Text style={styles.heroTitle}>What's on your list?</Text>
+                        <Text style={styles.heroSubtitle}>Find items quickly and{'\n'}add to your groceries.</Text>
+                    </View>
+
+                    {/* Right: Actions */}
+                    <View style={styles.heroActionsContainer}>
+                        <TouchableOpacity activeOpacity={0.8}>
+                            <LinearGradient
+                                colors={['#7DF08B', '#0CD2DB']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.searchButtonGradient}
+                            >
+                                <Feather name="search" size={20} color="#FFF" />
+                            </LinearGradient>
+                        </TouchableOpacity>
+                        
+                        <View style={styles.divider} />
+
+                        <TouchableOpacity style={styles.filterButton} activeOpacity={0.8}>
+                            <Feather name="sliders" size={18} color="#10B981" />
+                        </TouchableOpacity>
+                    </View>
+                </LinearGradient>
+
+                <View style={styles.listControls}>
+                    <View style={styles.listControlsLeft}>
+                        <Text style={styles.listTitle}>My Groceries</Text>
+                        <LinearGradient
+                            colors={['#7DF08B', '#0CD2DB']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.countBadge}
+                        >
+                            <Text style={styles.countText}>{filteredItems.length}</Text>
+                        </LinearGradient>
+                    </View>
+                    <TouchableOpacity style={styles.clearButton} onPress={handleClearAll} activeOpacity={0.7}>
+                        <Text style={styles.clearButtonText}>Clear All</Text>
+                        <Feather name="trash-2" size={16} color="#F43F5E" />
+                    </TouchableOpacity>
+                </View>
+
+                {isCreatingInline && (
+                    <View style={{ marginBottom: 16 }}>
+                        <GroceryInlineCreateCard 
+                            onSave={handleSaveInline} 
+                            onCancel={() => setIsCreatingInline(false)} 
+                        />
+                    </View>
+                )}
             </View>
         );
     };
@@ -121,8 +181,34 @@ export default function GroceriesScreen() {
         if (isCreatingInline) return null;
         return (
             <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>Add grocries</Text>
+                <Text style={styles.emptyText}>Add groceries</Text>
             </View>
+        );
+    };
+
+    const handleEditItem = (id: string) => {
+        Alert.alert('Edit Item', 'Editing functionality will be implemented here.');
+    };
+
+    const handleDeleteItem = (id: string) => {
+        Alert.alert(
+            'Delete Item',
+            'Are you sure you want to delete this item?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await deleteGroceryItem(Number(id));
+                            await loadItems();
+                        } catch (error) {
+                            console.error('Failed to delete item:', error);
+                        }
+                    }
+                }
+            ]
         );
     };
 
@@ -130,29 +216,26 @@ export default function GroceriesScreen() {
         <View style={styles.container}>
             <GroceryHeader />
 
-            <View style={styles.searchSection}>
-                <GrocerySearchBar search={search} onSearchChange={setSearch} />
-                <View style={styles.categoriesRow}>
-                    <View style={{ flex: 1 }} />
-                    <TouchableOpacity onPress={handleClearAll} style={styles.clearBtn} activeOpacity={0.7}>
-                        <Text style={styles.clearBtnText}>Clear</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-
             <FlatList
                 data={filteredItems}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <GroceryItemCard item={item} onToggle={toggleItem} />}
+                renderItem={({ item }) => (
+                    <GroceryItemCard 
+                        item={item} 
+                        onToggle={toggleItem} 
+                        onEdit={handleEditItem}
+                        onDelete={handleDeleteItem}
+                    />
+                )}
                 contentContainerStyle={styles.listContent}
-                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                ListHeaderComponent={renderHeader}
+                ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                ListHeaderComponent={renderListHeader}
                 ListEmptyComponent={renderEmpty}
+                showsVerticalScrollIndicator={false}
             />
 
             <GroceryFab onPress={() => {
                 setIsCreatingInline(true);
-                // Optional: Scroll to top when creating inline
             }} />
         </View>
     );
@@ -161,34 +244,135 @@ export default function GroceriesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: '#F8FAFB',
     },
-    searchSection: {
-        paddingHorizontal: 16,
-        paddingBottom: 8,
-        backgroundColor: colors.background,
+    listContent: {
+        paddingHorizontal: 24,
+        paddingBottom: 120,
+        flexGrow: 1,
     },
-    categoriesRow: {
+    headerContainer: {
+        paddingTop: 8,
+        paddingBottom: 24,
+    },
+    heroCard: {
+        borderRadius: 20,
+        padding: 12,
+        paddingVertical: 14,
+        flexDirection: 'row',
+        alignItems: 'center',
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#E8F5F5',
+        marginBottom: 24,
+    },
+    heroImageContainer: {
+        width: 64,
+        zIndex: 10,
+        marginRight: 12,
+    },
+    heroImage: {
+        width: '100%',
+        height: 64, 
+    },
+    heroTextContainer: {
+        flex: 1,
+        zIndex: 10,
+        justifyContent: 'center',
+    },
+    heroTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#111827',
+        lineHeight: 22,
+        marginBottom: 2,
+    },
+    heroSubtitle: {
+        fontSize: 11,
+        color: '#6B7280',
+        lineHeight: 16,
+    },
+    heroActionsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 6,
+    },
+    searchButtonGradient: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#14D2D0',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 3,
+    },
+    divider: {
+        height: 24,
+        width: 1,
+        backgroundColor: '#D1D5DB',
+        marginHorizontal: 8,
+    },
+    filterButton: {
+        width: 38,
+        height: 38,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 19,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    listControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 8,
+    },
+    listControlsLeft: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+    },
+    listTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#1E293B',
+    },
+    countBadge: {
+        borderRadius: 12,
+        height: 24,
+        minWidth: 24,
+        paddingHorizontal: 6,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 4,
+        marginTop: -4,
+    },
+    countText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    clearButton: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginTop: 8,
+        backgroundColor: '#FFF1F2',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#FFE4E6',
     },
-    clearBtn: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 8,
-        backgroundColor: colors.errorContainer,
-    },
-    clearBtnText: {
+    clearButtonText: {
+        color: '#F43F5E',
         fontSize: 14,
         fontWeight: '600',
-        color: colors.onErrorContainer,
-    },
-    listContent: {
-        paddingHorizontal: 16,
-        paddingBottom: 100,
-        flexGrow: 1,
     },
     emptyContainer: {
         flex: 1,
@@ -199,6 +383,6 @@ const styles = StyleSheet.create({
     emptyText: {
         fontSize: 18,
         fontWeight: '500',
-        color: colors.onSurfaceVariant,
+        color: '#94A3B8',
     },
-});
+});

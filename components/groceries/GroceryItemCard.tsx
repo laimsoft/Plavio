@@ -1,7 +1,6 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors } from '@/constants/colors';
+import { Feather } from '@expo/vector-icons';
+import React, { useRef, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native';
 
 export type GroceryItemType = {
   id: string;
@@ -15,98 +14,181 @@ export type GroceryItemType = {
 type Props = {
   item: GroceryItemType;
   onToggle: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 };
 
-export default function GroceryItemCard({ item, onToggle }: Props) {
+export default function GroceryItemCard({ item, onToggle, onEdit, onDelete }: Props) {
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
+  const iconRef = useRef<View>(null);
+
+  const handleMenuPress = () => {
+    iconRef.current?.measure((x, y, width, height, pageX, pageY) => {
+      setMenuPos({ top: pageY + height, right: Dimensions.get('window').width - pageX - width });
+      setMenuVisible(true);
+    });
+  };
+
+  const handleEdit = () => {
+    setMenuVisible(false);
+    onEdit && onEdit(item.id);
+  };
+
+  const handleDelete = () => {
+    setMenuVisible(false);
+    onDelete && onDelete(item.id);
+  };
+
   return (
-    <TouchableOpacity
-      style={styles.card}
-      activeOpacity={0.8}
-      onPress={() => onToggle(item.id)}
-    >
+    <View style={styles.card}>
       <TouchableOpacity
         style={[styles.checkbox, item.checked && styles.checkboxChecked]}
         activeOpacity={0.7}
         onPress={() => onToggle(item.id)}
       >
-        {item.checked && <MaterialIcons name="check" size={14} color={colors.onPrimary} />}
+        {item.checked && <Feather name="check" size={14} color="#FFF" />}
       </TouchableOpacity>
 
-      <View style={styles.cardContent}>
-        <View style={styles.cardTextGroup}>
-          <Text style={[styles.itemName, item.checked && styles.itemNameChecked]}>
-            {item.name}
-          </Text>
-          <Text style={styles.itemNote}>{item.note}</Text>
-        </View>
+      <View style={styles.iconContainer}>
+        <Feather name="shopping-bag" size={20} color="#06B6D4" />
+      </View>
+
+      <Text style={[styles.itemName, item.checked && styles.itemNameChecked]}>
+        {item.name}
+      </Text>
+
+      <View style={styles.rightActions}>
         <View style={styles.quantityBadge}>
-          <Text style={styles.quantityText}>{item.quantity}</Text>
+          <Text style={styles.quantityText}>{item.quantity || '1'}</Text>
+        </View>
+        <View ref={iconRef}>
+          <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
+            <Feather name="more-vertical" size={20} color="#94A3B8" />
+          </TouchableOpacity>
         </View>
       </View>
-    </TouchableOpacity>
+
+      <Modal visible={menuVisible} transparent={true} animationType="fade" onRequestClose={() => setMenuVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={[styles.dropdownContainer, { top: menuPos.top, right: menuPos.right }]}>
+              <TouchableOpacity style={styles.dropdownItem} onPress={handleEdit}>
+                <Feather name="edit-2" size={16} color="#475569" />
+                <Text style={styles.dropdownItemText}>Edit</Text>
+              </TouchableOpacity>
+              <View style={styles.dropdownDivider} />
+              <TouchableOpacity style={styles.dropdownItem} onPress={handleDelete}>
+                <Feather name="trash-2" size={16} color="#EF4444" />
+                <Text style={[styles.dropdownItemText, { color: '#EF4444' }]}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderWidth: 1,
-    borderColor: colors.surfaceVariant,
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: '#67E8F9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: colors.outline,
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#A5F3FC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  checkboxChecked: {
+    backgroundColor: '#22D3EE',
+    borderColor: '#22D3EE',
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    backgroundColor: '#ECFEFF',
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkboxChecked: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  cardContent: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  cardTextGroup: {
-    flexDirection: 'column',
-    flex: 1,
-    paddingRight: 8,
-  },
   itemName: {
+    flex: 1,
     fontSize: 16,
-    lineHeight: 24,
     fontWeight: '600',
-    color: colors.onSurface,
+    color: '#1E293B',
   },
   itemNameChecked: {
     textDecorationLine: 'line-through',
-    color: colors.onSurfaceVariant,
+    color: '#94A3B8',
   },
-  itemNote: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: colors.onSurfaceVariant,
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   quantityBadge: {
-    backgroundColor: colors.secondaryContainer,
-    paddingHorizontal: 8,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   quantityText: {
     fontSize: 14,
-    lineHeight: 20,
+    fontWeight: '700',
+    color: '#059669',
+  },
+  menuButton: {
+    padding: 6,
+  },
+  modalOverlay: {
+    flex: 1,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: 130,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+    paddingVertical: 4,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  dropdownItemText: {
+    fontSize: 15,
     fontWeight: '500',
-    color: colors.secondary,
+    color: '#475569',
+  },
+  dropdownDivider: {
+    height: 1,
+    backgroundColor: '#F1F5F9',
+    marginHorizontal: 8,
   },
 });
