@@ -1,7 +1,5 @@
-import { colors } from '@/constants/colors';
 import { MaterialIcons } from '@expo/vector-icons';
-import { StyleSheet, TextInput, View, TouchableOpacity } from 'react-native';
-import { extra } from './constants';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 type SearchBarProps = {
     value: string;

@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState } from 'react';
 import {
     Animated,
-    Dimensions,
     Keyboard,
     Modal,
     Platform,
@@ -120,8 +119,8 @@ export default function CreateTaskModal({
     if (!showModal) return null;
 
     const OBSCURED_HEIGHT = 190; // Height of priority and save button sections
-    const bottomMargin = kbHeight > 0 
-        ? (Platform.OS === 'ios' ? kbHeight - OBSCURED_HEIGHT : -OBSCURED_HEIGHT) 
+    const bottomMargin = kbHeight > 0
+        ? (Platform.OS === 'ios' ? kbHeight - OBSCURED_HEIGHT : -OBSCURED_HEIGHT)
         : 0;
 
     return (

@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { colors } from '@/constants/colors';
 
 type Props = {
   onPress: () => void;
@@ -9,27 +9,37 @@ type Props = {
 
 export default function GroceryFab({ onPress }: Props) {
   return (
-    <TouchableOpacity style={styles.fab} activeOpacity={0.85} onPress={onPress}>
-      <MaterialIcons name="add" size={26} color={colors.onPrimaryContainer} />
+    <TouchableOpacity style={styles.fabContainer} activeOpacity={0.85} onPress={onPress}>
+      <LinearGradient
+        colors={['#10B981', '#06B6D4']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.fab}
+      >
+        <MaterialIcons name="add" size={32} color="#FFFFFF" />
+      </LinearGradient>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  fab: {
+  fabContainer: {
     position: 'absolute',
-    bottom: 110,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: colors.primaryContainer,
+    right: 20,
+    bottom: 130,
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    shadowColor: '#06B6D4',
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  fab: {
+    flex: 1,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
 });
