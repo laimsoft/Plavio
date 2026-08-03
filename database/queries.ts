@@ -336,3 +336,9 @@ export const updateBillStatus = async (id: number, status: string): Promise<void
     id
   );
 };
+
+export const clearAccountsData = async (): Promise<void> => {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM account_transactions');
+  await db.runAsync('UPDATE accounts SET total_budget = 0, current_balance = 0, remaining_balance = 0, total_savings = 0');
+};
