@@ -1,6 +1,5 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { colors } from '@/constants/colors';
 
 type Props = {
   categories: string[];
@@ -41,18 +40,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: colors.surfaceContainer,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   chipActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#0CD2DB',
+    borderColor: '#0CD2DB',
+    shadowColor: '#0CD2DB',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   chipText: {
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '500',
-    color: colors.onSurfaceVariant,
+    color: '#64748B',
   },
   chipTextActive: {
-    color: colors.onPrimary,
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
 });

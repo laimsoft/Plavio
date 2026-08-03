@@ -2,10 +2,12 @@ import GroceryFab from '@/components/groceries/GroceryFab';
 import GroceryHeader from '@/components/groceries/GroceryHeader';
 import GroceryItemCard, { GroceryItemType } from '@/components/groceries/GroceryItemCard';
 import GroceryInlineCreateCard from '@/components/groceries/GroceryInlineCreateCard';
-import React, { useMemo, useState, useCallback } from 'react';
+import GrocerySearchBar from '@/components/groceries/GrocerySearchBar';
+import GroceryCategoryChips from '@/components/groceries/GroceryCategoryChips';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { FlatList, StyleSheet, View, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import { useFocusEffect } from 'expo-router';
-import { getGroceryItems, toggleGroceryItemPurchased, addGroceryItem, clearGroceryItems, deleteGroceryItem } from '@/database/queries';
+import { getGroceryItems, toggleGroceryItemPurchased, addGroceryItem, clearGroceryItems, deleteGroceryItem, updateGroceryItem } from '@/database/queries';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 
@@ -13,6 +15,9 @@ export default function GroceriesScreen() {
     const [items, setItems] = useState<GroceryItemType[]>([]);
     const [search, setSearch] = useState('');
     const [isCreatingInline, setIsCreatingInline] = useState(false);
+    const [editingItemId, setEditingItemId] = useState<string | null>(null);
+    const [activeControl, setActiveControl] = useState<'none' | 'search' | 'filter'>('none');
+    const [filterType, setFilterType] = useState<string>('All');
 
     const listId = 1;
 
@@ -24,6 +29,9 @@ export default function GroceriesScreen() {
                 name: row.name,
                 note: row.notes || '',
                 quantity: `${row.quantity} ${row.unit || ''}`.trim(),
+                rawQuantity: row.quantity.toString(),
+                unit: row.unit || '',
+                categoryId: row.category_id,
                 category: row.category_name || 'Uncategorized',
                 checked: row.purchased === 1,
             }));
@@ -41,9 +49,29 @@ export default function GroceriesScreen() {
 
     const filteredItems = useMemo(() => {
         return items.filter((item) => {
-            return item.name.toLowerCase().includes(search.toLowerCase());
+            const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+            let matchesFilter = true;
+            if (filterType === 'Bought') matchesFilter = item.checked;
+            if (filterType === 'Remaining') matchesFilter = !item.checked;
+            return matchesSearch && matchesFilter;
         });
-    }, [items, search]);
+    }, [items, search, filterType]);
+
+    const toggleSearch = () => {
+        if (activeControl === 'search') setActiveControl('none');
+        else setActiveControl('search');
+    };
+
+    const toggleFilter = () => {
+        if (activeControl === 'filter') setActiveControl('none');
+        else setActiveControl('filter');
+    };
+
+    useEffect(() => {
+        if (activeControl !== 'filter') {
+            setFilterType('All');
+        }
+    }, [activeControl]);
 
     const toggleItem = async (id: string) => {
         const itemToToggle = items.find((i) => i.id === id);
@@ -128,7 +156,7 @@ export default function GroceriesScreen() {
 
                     {/* Right: Actions */}
                     <View style={styles.heroActionsContainer}>
-                        <TouchableOpacity activeOpacity={0.8}>
+                        <TouchableOpacity activeOpacity={0.8} onPress={toggleSearch}>
                             <LinearGradient
                                 colors={['#7DF08B', '#0CD2DB']}
                                 start={{ x: 0, y: 0 }}
@@ -141,11 +169,27 @@ export default function GroceriesScreen() {
                         
                         <View style={styles.divider} />
 
-                        <TouchableOpacity style={styles.filterButton} activeOpacity={0.8}>
+                        <TouchableOpacity style={styles.filterButton} activeOpacity={0.8} onPress={toggleFilter}>
                             <Feather name="sliders" size={18} color="#10B981" />
                         </TouchableOpacity>
                     </View>
                 </LinearGradient>
+
+                {activeControl === 'search' && (
+                    <View style={{ marginBottom: 16 }}>
+                        <GrocerySearchBar search={search} onSearchChange={setSearch} />
+                    </View>
+                )}
+
+                {activeControl === 'filter' && (
+                    <View style={{ marginBottom: 16 }}>
+                        <GroceryCategoryChips 
+                            categories={['All', 'Bought', 'Remaining']} 
+                            selectedCategory={filterType} 
+                            onSelectCategory={setFilterType} 
+                        />
+                    </View>
+                )}
 
                 <View style={styles.listControls}>
                     <View style={styles.listControlsLeft}>
@@ -187,7 +231,26 @@ export default function GroceriesScreen() {
     };
 
     const handleEditItem = (id: string) => {
-        Alert.alert('Edit Item', 'Editing functionality will be implemented here.');
+        setEditingItemId(id);
+    };
+
+    const handleSaveEditItem = async (id: string, name: string, quantity: string, unit: string) => {
+        try {
+            const item = items.find(i => i.id === id);
+            const parsedQuantity = quantity ? parseFloat(quantity) : 1;
+            await updateGroceryItem(
+                Number(id),
+                name,
+                isNaN(parsedQuantity) ? 1 : parsedQuantity,
+                unit || null,
+                item?.categoryId || null,
+                item?.note || null
+            );
+            setEditingItemId(null);
+            await loadItems();
+        } catch (error) {
+            console.error('Failed to update item:', error);
+        }
     };
 
     const handleDeleteItem = (id: string) => {
@@ -220,16 +283,26 @@ export default function GroceriesScreen() {
                 data={filteredItems}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <GroceryItemCard 
-                        item={item} 
-                        onToggle={toggleItem} 
-                        onEdit={handleEditItem}
-                        onDelete={handleDeleteItem}
-                    />
+                    editingItemId === item.id ? (
+                        <GroceryInlineCreateCard 
+                            initialName={item.name}
+                            initialQuantity={item.rawQuantity}
+                            initialUnit={item.unit}
+                            onSave={(name, quantity, unit) => handleSaveEditItem(item.id, name, quantity, unit)} 
+                            onCancel={() => setEditingItemId(null)} 
+                        />
+                    ) : (
+                        <GroceryItemCard 
+                            item={item} 
+                            onToggle={toggleItem} 
+                            onEdit={handleEditItem}
+                            onDelete={handleDeleteItem}
+                        />
+                    )
                 )}
                 contentContainerStyle={styles.listContent}
                 ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-                ListHeaderComponent={renderListHeader}
+                ListHeaderComponent={renderListHeader()}
                 ListEmptyComponent={renderEmpty}
                 showsVerticalScrollIndicator={false}
             />

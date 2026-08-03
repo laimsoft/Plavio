@@ -7,6 +7,9 @@ export type GroceryItemType = {
   name: string;
   note: string;
   quantity: string;
+  rawQuantity?: string;
+  unit?: string;
+  categoryId?: number | null;
   category: string;
   checked: boolean;
 };
@@ -25,7 +28,7 @@ export default function GroceryItemCard({ item, onToggle, onEdit, onDelete }: Pr
 
   const handleMenuPress = () => {
     iconRef.current?.measure((x, y, width, height, pageX, pageY) => {
-      setMenuPos({ top: pageY + height, right: Dimensions.get('window').width - pageX - width });
+      setMenuPos({ top: pageY, right: Dimensions.get('window').width - pageX - width });
       setMenuVisible(true);
     });
   };
@@ -41,14 +44,16 @@ export default function GroceryItemCard({ item, onToggle, onEdit, onDelete }: Pr
   };
 
   return (
-    <View style={styles.card}>
-      <TouchableOpacity
+    <TouchableOpacity 
+      style={styles.card} 
+      activeOpacity={0.8}
+      onPress={() => onToggle(item.id)}
+    >
+      <View
         style={[styles.checkbox, item.checked && styles.checkboxChecked]}
-        activeOpacity={0.7}
-        onPress={() => onToggle(item.id)}
       >
         {item.checked && <Feather name="check" size={14} color="#FFF" />}
-      </TouchableOpacity>
+      </View>
 
       <View style={styles.iconContainer}>
         <Feather name="shopping-bag" size={20} color="#06B6D4" />
@@ -86,7 +91,7 @@ export default function GroceryItemCard({ item, onToggle, onEdit, onDelete }: Pr
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-    </View>
+    </TouchableOpacity>
   );
 }
 
